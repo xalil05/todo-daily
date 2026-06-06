@@ -1,0 +1,19 @@
+# 📦 pyproject.toml
+# Configuration du projet pour UV (gestionnaire de paquets Python)
+# 
+# Ici on déclare :
+# - Le nom du projet et sa version
+# - Les dépendances (paquets à installer)
+# - La configuration Python
+
+[project]
+name = "todo-daily"
+version = "0.1.0"
+description = "Todo liste quotidienne"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "jinja2",
+    "python-multipart",
+]

@@ -1,0 +1,16 @@
+<!-- 📋 app/templates/index.html -->
+<!-- Page principale de la todo list -->
+<!--
+    Rôle : page complète avec :
+    - Formulaire d'ajout de tâche
+    - Liste des tâches
+    - Filtres (tout/actif/fait)
+    - Boutons pour chaque tâche (faire/supprimer)
+    
+    Utilise htmx pour les interactions sans rechargement :
+    - hx-post="/api/todos" → ajouter une tâche
+    - hx-put="/api/todos/{{ id }}" → marquer comme fait
+    - hx-delete="/api/todos/{{ id }}" → supprimer
+    
+    La page hérite de base.html avec {% extends "base.html" %}
+-->

@@ -16,8 +16,8 @@ def create_todo(db: sqlite3.Connection, data: TodoCreate) -> Todo:
     Insère une nouvelle tâche en base et retourne l'objet Todo créé.
     """
     cursor = db.execute(
-        "INSERT INTO todos (title, category, priority) VALUES (?, ?, ?)",
-        (data.title, data.category, data.priority),
+        "INSERT INTO todos (title, category, due_date, priority) VALUES (?, ?, ?, ?)",
+        (data.title, data.category, data.due_date, data.priority),
     )
     db.commit()
 

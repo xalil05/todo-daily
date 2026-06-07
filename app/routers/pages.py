@@ -24,6 +24,7 @@ def _render_todo_partial(
     todos = todo_service.get_todos(db, filter_status=filter if filter != "all" else None, filter_category=cat)
     counts = todo_service.count_todos(db)
     categories = todo_service.get_categories(db)
+    today = __import__("datetime").date.today().isoformat()
 
     return request.app.state.templates.TemplateResponse(
         request,
@@ -35,6 +36,7 @@ def _render_todo_partial(
             "categories": categories,
             "filter": filter,
             "current_category": category or "all",
+            "today": today,
         },
     )
 
@@ -67,6 +69,7 @@ def home(
     todos = todo_service.get_todos(db, filter_status=filter if filter != "all" else None, filter_category=cat)
     counts = todo_service.count_todos(db)
     categories = todo_service.get_categories(db)
+    today = __import__("datetime").date.today().isoformat()
 
     return request.app.state.templates.TemplateResponse(
         request,
@@ -78,6 +81,7 @@ def home(
             "categories": categories,
             "filter": filter,
             "current_category": category,
+            "today": today,
         },
     )
 
@@ -88,6 +92,7 @@ def create_todo_htmx(
     title: str = Form(...),
     priority: str = Form("moyenne"),
     category: str = Form(""),
+    due_date: str = Form(""),
     db: Connection = Depends(get_db),
 ):
     """
@@ -97,6 +102,7 @@ def create_todo_htmx(
         return _render_todo_partial(request, "all", None, db)
 
     cat = category.strip() or None
-    data = TodoCreate(title=title.strip(), priority=priority, category=cat)
+    dd = due_date.strip() or None
+    data = TodoCreate(title=title.strip(), priority=priority, category=cat, due_date=dd)
     todo_service.create_todo(db, data)
     return _render_todo_partial(request, "all", None, db)

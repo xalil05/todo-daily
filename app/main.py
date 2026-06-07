@@ -14,7 +14,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.database import init_db
-from app.routers import todos, pages
+from app.services import project_service
+from app.routers import todos, pages, projects
 
 
 # Création de l'application FastAPI avec les métadonnées de base
@@ -41,6 +42,11 @@ def on_startup():
     Crée la table 'todos' dans SQLite si elle n'existe pas encore.
     """
     init_db()
+    conn = __import__("app.database", fromlist=["get_db"]).get_db()
+    try:
+        project_service.seed_projects(conn)
+    finally:
+        conn.close()
     print("✅ Base de données initialisée avec succès.")
 
 
@@ -50,6 +56,9 @@ app.include_router(todos.router)
 
 # Router des pages HTML (route /)
 app.include_router(pages.router)
+
+# Router des projets (pages + API)
+app.include_router(projects.router)
 
 
 # --- Dossier des fichiers statiques ---

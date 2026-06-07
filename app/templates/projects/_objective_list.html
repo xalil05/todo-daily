@@ -1,0 +1,15 @@
+{% for obj in objectives %}
+<div class="flex items-center gap-2 py-1.5 text-sm border-b border-gray-100 dark:border-gray-700/30 last:border-0">
+    <button hx-post="/api/projects/{{ project.id }}/objective/{{ obj.id }}/toggle"
+            hx-target="#objective-list"
+            hx-swap="innerHTML"
+            class="shrink-0 text-base hover:scale-110 transition-transform cursor-pointer">
+        {% if obj.completed %}✅{% else %}⬜{% endif %}
+    </button>
+    <span class="flex-1 text-gray-700 dark:text-gray-300 {% if obj.completed %}line-through text-gray-400 dark:text-gray-500{% endif %}">
+        {{ obj.objective }}
+    </span>
+</div>
+{% else %}
+<p class="text-xs text-gray-400 dark:text-gray-500 italic">Aucun objectif pour aujourd'hui.</p>
+{% endfor %}

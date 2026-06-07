@@ -1,0 +1,16 @@
+{% for log in logs %}
+<div class="flex items-start gap-2 py-1.5 text-xs border-b border-gray-100 dark:border-gray-700/30 last:border-0">
+    <span class="shrink-0 mt-0.5">
+        {% if log.entry_type == 'milestone' %}🚩
+        {% elif log.entry_type == 'decision' %}⚡
+        {% elif log.entry_type == 'note' %}📝
+        {% else %}▶️{% endif %}
+    </span>
+    <div class="flex-1 min-w-0">
+        <p class="text-gray-700 dark:text-gray-300">{{ log.content }}</p>
+        <p class="text-gray-400 dark:text-gray-500 mt-0.5">{{ log.created_at }}</p>
+    </div>
+</div>
+{% else %}
+<p class="text-xs text-gray-400 dark:text-gray-500 italic">Aucune entrée pour l'instant.</p>
+{% endfor %}

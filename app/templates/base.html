@@ -55,8 +55,12 @@
                     ✅ Todo
                 </a>
                 <a href="/projects/"
-                   class="rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors {% if request.url.path.startswith('/projects') %}font-semibold text-indigo-600 dark:text-indigo-400{% endif %}">
+                   class="rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors {% if request.url.path == '/projects/' %}font-semibold text-indigo-600 dark:text-indigo-400{% endif %}">
                     🏢 Projets
+                </a>
+                <a href="/projects/weekly"
+                   class="rounded-lg px-3 py-1.5 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors {% if request.url.path == '/projects/weekly' %}font-semibold text-indigo-600 dark:text-indigo-400{% endif %}">
+                    📅 Semaine
                 </a>
             </nav>
             <button id="theme-toggle"

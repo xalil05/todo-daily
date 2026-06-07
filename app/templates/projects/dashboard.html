@@ -24,6 +24,48 @@
     </p>
 </div>
 
+{# ─── Aujourd'hui — Focus hebdo ────────────────── #}
+{% if stats.today_focus and stats.today_focus[0] %}
+{% set day_name = stats.today_focus[0] %}
+{% set primary_slug = stats.today_focus[1] %}
+{% set secondary_slug = stats.today_focus[2] %}
+<div class="mb-6 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 p-4 shadow-sm ring-1 ring-indigo-200 dark:ring-indigo-800/50">
+    <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            📍 {{ day_name }} — Focus
+        </h2>
+        <a href="/projects/weekly" class="text-xs text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline">
+            Voir la semaine →
+        </a>
+    </div>
+    <div class="flex flex-wrap gap-2">
+        {% if primary_slug %}
+            {% set primary = projects|selectattr("slug", "equalto", primary_slug)|first %}
+            {% if primary %}
+            <a href="/projects/{{ primary.slug }}"
+               class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+               style="background-color: {{ primary.color }}20; color: {{ primary.color }};">
+                <span>{{ primary.icon }}</span>
+                <span>{{ primary.short_name or primary.name }}</span>
+                <span class="text-xs opacity-60 ml-1">★ Principal</span>
+            </a>
+            {% endif %}
+        {% endif %}
+        {% if secondary_slug %}
+            {% set secondary = projects|selectattr("slug", "equalto", secondary_slug)|first %}
+            {% if secondary %}
+            <a href="/projects/{{ secondary.slug }}"
+               class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700/60 ring-1 ring-gray-200 dark:ring-gray-600/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <span>{{ secondary.icon }}</span>
+                <span>{{ secondary.short_name or secondary.name }}</span>
+                <span class="text-xs opacity-60 ml-1">Secondaire</span>
+            </a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 {# ─── Objectifs du jour ─────────────────────── #}
 {% if today_objectives %}
 <div class="mb-6 rounded-xl bg-white dark:bg-gray-800/90 p-4 shadow-sm ring-1 ring-gray-100 dark:ring-gray-700/50">

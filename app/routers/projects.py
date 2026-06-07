@@ -4,6 +4,7 @@ Routes pour les projets SaaS / perso du Project Hub.
 Pages HTML :
 - GET /projects/           → tableau de bord de tous les projets
 - GET /projects/{slug}    → détail d'un projet
+- GET /projects/weekly    → planning hebdomadaire
 
 API JSON :
 - GET  /api/projects            → liste
@@ -12,6 +13,7 @@ API JSON :
 - POST /api/projects/{id}/objective   → ajouter objectif
 - POST /api/projects/{id}/objective/{oid}/toggle   → basculer objectif
 - GET  /api/dashboard           → stats
+- GET  /api/weekly-plan         → planning hebdo
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
@@ -45,6 +47,25 @@ def projects_dashboard(
             "projects": projects,
             "today_objectives": today_objectives,
             "stats": stats,
+            "today": date.today().isoformat(),
+        },
+    )
+
+
+@router.get("/projects/weekly")
+def weekly_plan(
+    request: Request,
+    db: Connection = Depends(get_db),
+):
+    """Planning hebdomadaire."""
+    plan = project_service.get_weekly_plan(db)
+    return request.app.state.templates.TemplateResponse(
+        request,
+        "projects/weekly.html",
+        {
+            "request": request,
+            "plan": plan,
+            "today_idx": __import__("datetime").datetime.now().weekday(),
             "today": date.today().isoformat(),
         },
     )
@@ -206,3 +227,11 @@ def api_dashboard(
 ):
     """Statistiques pour le tableau de bord."""
     return project_service.get_dashboard_stats(db)
+
+
+@router.get("/api/weekly-plan")
+def api_weekly_plan(
+    db: Connection = Depends(get_db),
+):
+    """Planning hebdomadaire."""
+    return project_service.get_weekly_plan(db)

@@ -284,4 +284,51 @@ def get_dashboard_stats(db: sqlite3.Connection):
         "active_perso": active_perso,
         "total_logs": total_logs,
         "pending_objectives": total_objectives,
+        "today_focus": get_today_focus(),
     }
+
+
+# ─── Planification hebdomadaire ────────────────────────
+
+WEEKLY_PLAN = [
+    # (day_name, primary_project_slug, secondary_project_slug)
+    ("Lundi", "dossier-bankable", "bellissima"),
+    ("Mardi", "bugcrush", "todo-daily"),
+    ("Mercredi", "secureshield", "projecsen"),
+    ("Jeudi", "melo-studio", "python-learning"),
+    ("Vendredi", None, None),       # Opérations / bouclage
+    ("Samedi", None, None),         # R&D / libre
+    ("Dimanche", None, None),       # Repos
+]
+
+WEEKDAYS_FR = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+
+
+def get_today_focus():
+    """Retourne le focus du jour (day_name, primary_slug, secondary_slug)."""
+    from datetime import datetime
+    today_idx = datetime.now().weekday()  # 0=Lundi
+    if today_idx < len(WEEKLY_PLAN):
+        return WEEKLY_PLAN[today_idx]
+    return (None, None, None)
+
+
+def get_weekly_plan(db: sqlite3.Connection):
+    """Retourne le planning hebdomadaire avec les infos projets."""
+    result = []
+    for day_name, primary_slug, secondary_slug in WEEKLY_PLAN:
+        entry = {
+            "day": day_name,
+            "primary": None,
+            "secondary": None,
+        }
+        if primary_slug:
+            p = get_project_by_slug(db, primary_slug)
+            if p:
+                entry["primary"] = p
+        if secondary_slug:
+            s = get_project_by_slug(db, secondary_slug)
+            if s:
+                entry["secondary"] = s
+        result.append(entry)
+    return result

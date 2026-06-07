@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}📅 Planning Hebdomadaire{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="/projects/" class="mb-4 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+        ← Projets
+    </a>
+    <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+        📅 Planning Hebdomadaire
+    </h1>
+</div>
+
+<div class="space-y-3">
+    {% for day in plan %}
+    {% set day_idx = loop.index0 %}
+    {% set is_today = day_idx == today_idx %}
+
+    <div class="rounded-xl bg-white dark:bg-gray-800/90 p-4 shadow-sm ring-1 ring-gray-100 dark:ring-gray-700/50
+                {% if is_today %}ring-2 ring-indigo-400 dark:ring-indigo-500{% endif %}">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="text-sm font-semibold {% if is_today %}text-indigo-600 dark:text-indigo-400{% else %}text-gray-700 dark:text-gray-300{% endif %}">
+                {{ day.day }}
+            </span>
+            {% if is_today %}
+                <span class="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-medium">
+                    Aujourd'hui
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            {# Focus principal #}
+            {% if day.primary %}
+            <a href="/projects/{{ day.primary.slug }}"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:opacity-80"
+               style="background-color: {{ day.primary.color }}15; color: {{ day.primary.color }};">
+                <span>{{ day.primary.icon }}</span>
+                <span>{{ day.primary.short_name or day.primary.name }}</span>
+                <span class="text-xs opacity-60">(principal)</span>
+            </a>
+            {% else %}
+            <div class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/40">
+                <span>💼</span>
+                <span>Opérations / Bouclage</span>
+            </div>
+            {% endif %}
+
+            {# Focus secondaire #}
+            {% if day.secondary %}
+            <a href="/projects/{{ day.secondary.slug }}"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/40 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <span>{{ day.secondary.icon }}</span>
+                <span>{{ day.secondary.short_name or day.secondary.name }}</span>
+                <span class="text-xs opacity-60">(secondaire)</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

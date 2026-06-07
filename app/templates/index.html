@@ -11,6 +11,26 @@
         <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400">Gérez vos tâches simplement, sans rechargement.</p>
     </div>
 
+    {# Barre du timer intégré #}
+    <div id="timer-bar"
+         class="mb-4 hidden rounded-xl border border-indigo-200 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-950/30 px-4 py-3 text-sm transition-all duration-300"
+         role="timer">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 min-w-0">
+                <span id="timer-icon" class="shrink-0 text-base">⏰</span>
+                <span id="timer-text" class="truncate font-medium text-indigo-800 dark:text-indigo-200">—</span>
+            </div>
+            <span id="timer-countdown"
+                  class="shrink-0 whitespace-nowrap rounded-full bg-indigo-600/10 dark:bg-indigo-500/20 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 tabular-nums">
+                —
+            </span>
+        </div>
+        {# Barre de progression #}
+        <div class="mt-2 h-1 w-full overflow-hidden rounded-full bg-indigo-200/50 dark:bg-indigo-800/30">
+            <div id="timer-progress" class="h-full w-0 rounded-full bg-indigo-500 transition-all duration-1000 ease-linear"></div>
+        </div>
+    </div>
+
     {# Formulaire d'ajout #}
     <form
         id="add-todo-form"
@@ -93,12 +113,115 @@
 {% endblock %}
 
 {% block scripts %}
-    {# 
-        Petit script pour vider le champ titre après l'ajout réussi.
-        On écoute l'événement htmx:afterRequest sur le formulaire.
-        Dès qu'une réponse est reçue (succès ou erreur), on réinitialise le champ.
-        Cela n'utilise pas de logique métier complexe, juste un confort utilisateur.
-    #}
+    {# Timer intégré — compte à rebours et notifications navigateur #}
+    <script>
+        (function() {
+            const POLL_INTERVAL = 30000; // 30s
+            const ONE_HOUR = 3600;
+            const ONE_DAY = 86400;
+            let lastNotified = {};
+
+            function formatDuration(seconds) {
+                if (seconds <= 0) return '⚠️ En retard';
+                if (seconds >= ONE_DAY) {
+                    const d = Math.floor(seconds / ONE_DAY);
+                    return `📅 ${d}j`;
+                }
+                if (seconds >= ONE_HOUR) {
+                    const h = Math.floor(seconds / ONE_HOUR);
+                    const m = Math.floor((seconds % ONE_HOUR) / 60);
+                    return `⏳ ${h}h ${m}min`;
+                }
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                if (m > 0) return `⏳ ${m}min ${s}s`;
+                return `⏳ ${s}s`;
+            }
+
+            function showNotification(title, body) {
+                if (!("Notification" in window)) return;
+                if (Notification.permission === "granted") {
+                    const key = title + body;
+                    if (lastNotified[key] && Date.now() - lastNotified[key] < 60000) return;
+                    lastNotified[key] = Date.now();
+                    new Notification(title, { body, icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>" });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission();
+                }
+            }
+
+            function updateTimer() {
+                const bar = document.getElementById('timer-bar');
+                if (!bar) return;
+
+                fetch('/api/todos/next-due')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data.next) {
+                            bar.classList.add('hidden');
+                            return;
+                        }
+
+                        bar.classList.remove('hidden');
+                        const t = data.next;
+                        document.getElementById('timer-text').textContent = t.title;
+                        document.getElementById('timer-countdown').textContent = formatDuration(t.remaining_seconds);
+
+                        // Icône selon le délai
+                        const icon = document.getElementById('timer-icon');
+                        if (t.overdue) { icon.textContent = '🚨'; }
+                        else if (t.remaining_seconds < 300) { icon.textContent = '🔥'; } // < 5min
+                        else if (t.remaining_seconds < 900) { icon.textContent = '⏰'; } // < 15min
+                        else { icon.textContent = '📋'; }
+
+                        // Barre de progression (sur 1h max)
+                        const progress = document.getElementById('timer-progress');
+                        const maxSec = ONE_HOUR;
+                        const pct = t.overdue ? 100 : Math.min(100, ((maxSec - t.remaining_seconds) / maxSec) * 100);
+                        progress.style.width = pct + '%';
+
+                        // Couleur selon urgence
+                        const barEl = bar;
+                        if (t.overdue) {
+                            barEl.className = barEl.className.replace(/border-\w+-\d+/, 'border-red-300 dark:border-red-800/50')
+                                .replace(/bg-\w+-\d+/, 'bg-red-50 dark:bg-red-950/30');
+                            document.getElementById('timer-countdown').className = document.getElementById('timer-countdown').className
+                                .replace(/bg-\w+-\d+\/\d+/, 'bg-red-600/10 dark:bg-red-500/20')
+                                .replace(/text-\w+-\d+/, 'text-red-700 dark:text-red-300');
+                        } else if (t.remaining_seconds < 900) {
+                            barEl.className = barEl.className.replace(/border-\w+-\d+/, 'border-orange-200 dark:border-orange-800/50')
+                                .replace(/bg-\w+-\d+/, 'bg-orange-50 dark:bg-orange-950/30');
+                            document.getElementById('timer-countdown').className = document.getElementById('timer-countdown').className
+                                .replace(/bg-\w+-\d+\/\d+/, 'bg-orange-600/10 dark:bg-orange-500/20')
+                                .replace(/text-\w+-\d+/, 'text-orange-700 dark:text-orange-300');
+                        } else {
+                            barEl.className = barEl.className.replace(/border-\w+-\d+/, 'border-indigo-200 dark:border-indigo-800/50')
+                                .replace(/bg-\w+-\d+/, 'bg-indigo-50 dark:bg-indigo-950/30');
+                            document.getElementById('timer-countdown').className = document.getElementById('timer-countdown').className
+                                .replace(/bg-\w+-\d+\/\d+/, 'bg-indigo-600/10 dark:bg-indigo-500/20')
+                                .replace(/text-\w+-\d+/, 'text-indigo-700 dark:text-indigo-300');
+                        }
+
+                        // Notification navigateur si <= 5 min ou en retard
+                        const key = t.id + '_' + t.remaining_seconds;
+                        if (!lastNotified[key] && (t.overdue || t.remaining_seconds <= 300)) {
+                            const msg = t.overdue ? '🚨 Tâche en retard !' : '🔥 Échéance imminente !';
+                            showNotification(msg, t.title + (t.due_time ? ' (' + t.due_time + ')' : ''));
+                            lastNotified[key] = Date.now();
+                        }
+                    })
+                    .catch(err => console.error('Timer error:', err));
+            }
+
+            // Démarrer le timer
+            updateTimer();
+            setInterval(updateTimer, POLL_INTERVAL);
+            // Re-vérifier après chaque action htmx
+            document.addEventListener('htmx:afterSwap', updateTimer);
+        })();
+    </script>
+
+    {# Petit script pour vider le champ titre après l'ajout réussi #}
     <script>
         document.getElementById('add-todo-form').addEventListener('htmx:afterRequest', function() {
             this.reset();

@@ -164,6 +164,37 @@ def count_todos(db: sqlite3.Connection) -> dict[str, int]:
     return {"total": total, "active": active, "done": done}
 
 
+def get_next_due(db: sqlite3.Connection) -> Optional[dict]:
+    """
+    Retourne la prochaine tâche non terminée avec date/heure d'échéance.
+    Utilisé par le timer intégré dans l'app.
+    """
+    from datetime import datetime
+
+    now = datetime.now()
+    today = now.strftime("%Y-%m-%d")
+    current_time = now.strftime("%H:%M")
+
+    rows = db.execute(
+        "SELECT " + TODOS_COLUMNS + " FROM todos WHERE completed = 0 AND due_date IS NOT NULL ORDER BY due_date ASC, due_time ASC"
+    ).fetchall()
+
+    for row in rows:
+        todo = dict(row)
+        if todo["due_date"] < today:
+            continue  # Déjà passée
+        if todo["due_date"] == today and todo["due_time"] and todo["due_time"] < current_time:
+            continue  # Heure déjà passée
+        return {
+            "id": todo["id"],
+            "title": todo["title"],
+            "due_date": todo["due_date"],
+            "due_time": todo["due_time"],
+            "priority": todo["priority"],
+        }
+    return None
+
+
 # ─── Catégories ────────────────────────────────────────────────
 
 

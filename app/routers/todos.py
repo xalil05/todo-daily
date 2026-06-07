@@ -225,6 +225,33 @@ def update_todo_title(
     return updated
 
 
+@router.get("/next-due")
+def get_next_due(request: Request, db: Connection = Depends(get_db)):
+    """Prochaine tâche échue — utilisé par le timer intégré."""
+    from datetime import datetime, timedelta
+    next_task = todo_service.get_next_due(db)
+    if next_task is None:
+        return {"next": None}
+
+    now = datetime.now()
+    try:
+        due = datetime.strptime(f"{next_task['due_date']} {next_task['due_time'] or '23:59'}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        return {"next": None}
+
+    remaining = (due - now).total_seconds()
+    return {
+        "next": {
+            "id": next_task["id"],
+            "title": next_task["title"],
+            "due_date": next_task["due_date"],
+            "due_time": next_task["due_time"],
+            "remaining_seconds": max(0, int(remaining)),
+            "overdue": remaining < 0,
+        }
+    }
+
+
 @router.delete("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_todo(
     todo_id: int,

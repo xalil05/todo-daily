@@ -14,17 +14,10 @@ from app.models import Todo, TodoCreate, TodoUpdate
 def create_todo(db: sqlite3.Connection, data: TodoCreate) -> Todo:
     """
     Insère une nouvelle tâche en base et retourne l'objet Todo créé.
-
-    Args:
-        db: Connexion SQLite active
-        data: Données validées (title, priority)
-
-    Returns:
-        Le modèle Todo avec son id, sa date de création et completed=False
     """
     cursor = db.execute(
-        "INSERT INTO todos (title, priority) VALUES (?, ?)",
-        (data.title, data.priority),
+        "INSERT INTO todos (title, category, priority) VALUES (?, ?, ?)",
+        (data.title, data.category, data.priority),
     )
     db.commit()
 
@@ -37,28 +30,26 @@ def create_todo(db: sqlite3.Connection, data: TodoCreate) -> Todo:
 def get_todos(
     db: sqlite3.Connection,
     filter_status: Optional[str] = None,
+    filter_category: Optional[str] = None,
 ) -> list[Todo]:
     """
-    Récupère la liste des tâches, avec un filtre optionnel.
-
-    Args:
-        db: Connexion SQLite active
-        filter_status: 'done' pour les tâches terminées,
-                       'active' pour les tâches en cours,
-                       None ou 'all' pour tout récupérer
-
-    Returns:
-        Liste de modèles Todo, triés par date de création (plus récentes d'abord)
+    Récupère la liste des tâches, avec filtres optionnels.
     """
-    query = "SELECT * FROM todos"
+    conditions = []
     params = ()
 
     if filter_status == "done":
-        query += " WHERE completed = 1"
+        conditions.append("completed = 1")
     elif filter_status == "active":
-        query += " WHERE completed = 0"
-    # Si None ou 'all', pas de filtre
+        conditions.append("completed = 0")
 
+    if filter_category:
+        conditions.append("category = ?")
+        params = params + (filter_category,)
+
+    query = "SELECT * FROM todos"
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
     query += " ORDER BY created_at DESC"
     rows = db.execute(query, params).fetchall()
     return [Todo.model_validate(dict(row)) for row in rows]
@@ -167,3 +158,38 @@ def count_todos(db: sqlite3.Connection) -> dict[str, int]:
     done = db.execute("SELECT COUNT(*) FROM todos WHERE completed = 1").fetchone()[0]
     active = total - done
     return {"total": total, "active": active, "done": done}
+
+
+# ─── Catégories ────────────────────────────────────────────────
+
+
+def get_categories(db: sqlite3.Connection) -> list[dict]:
+    """Liste toutes les catégories triées par ordre."""
+    rows = db.execute(
+        "SELECT * FROM categories ORDER BY sort_order ASC, name ASC"
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def create_category(db: sqlite3.Connection, name: str, color: str = "#6366f1") -> dict:
+    """Crée une catégorie et la retourne."""
+    cursor = db.execute(
+        "INSERT INTO categories (name, color) VALUES (?, ?)",
+        (name.strip(), color),
+    )
+    db.commit()
+    row = db.execute("SELECT * FROM categories WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    return dict(row)
+
+
+def delete_category(db: sqlite3.Connection, category_id: int) -> bool:
+    """Supprime une catégorie. Les tâches gardent leur catégorie (texte)."""
+    cursor = db.execute("DELETE FROM categories WHERE id = ?", (category_id,))
+    db.commit()
+    return cursor.rowcount > 0
+
+
+def get_category_names(db: sqlite3.Connection) -> list[str]:
+    """Retourne la liste des noms de catégories existantes."""
+    rows = db.execute("SELECT name FROM categories ORDER BY sort_order, name").fetchall()
+    return [r["name"] for r in rows]

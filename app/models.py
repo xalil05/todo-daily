@@ -20,6 +20,11 @@ class TodoCreate(BaseModel):
         max_length=200,
         description="Le texte de la tâche à faire"
     )
+    category: str | None = Field(
+        default=None,
+        max_length=50,
+        description="Catégorie de la tâche"
+    )
     priority: str = Field(
         default="moyenne",
         pattern=r"^(haute|moyenne|basse)$",
@@ -66,6 +71,7 @@ class Todo(BaseModel):
     """
     id: int
     title: str
+    category: str | None
     priority: str
     completed: bool
     created_at: str  # format ISO 8601 (chaîne renvoyée par SQLite)
@@ -78,3 +84,17 @@ class Todo(BaseModel):
         if isinstance(v, bool):
             return v
         raise ValueError("completed doit être 0, 1, True ou False")
+
+
+class Category(BaseModel):
+    """Représentation d'une catégorie."""
+    id: int
+    name: str
+    color: str
+    sort_order: int
+
+
+class CategoryCreate(BaseModel):
+    """Schéma pour créer une catégorie."""
+    name: str = Field(..., min_length=1, max_length=50)
+    color: str = Field(default="#6366f1", pattern=r"^#[0-9a-fA-F]{6}$")

@@ -48,6 +48,20 @@
                 <option value="basse">🟢 Basse</option>
             </select>
 
+            {# Sélecteur de catégorie #}
+            <input
+                type="text"
+                name="category"
+                list="cat-list"
+                placeholder="Catégorie (optionnelle)"
+                class="rounded-md border border-gray-300 px-3 py-2 text-gray-700 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+            <datalist id="cat-list">
+                {% for cat in categories %}
+                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                {% endfor %}
+            </datalist>
+
             {# Bouton d'ajout #}
             <button
                 type="submit"

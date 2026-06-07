@@ -36,15 +36,12 @@ def get_db() -> sqlite3.Connection:
 
 def init_db():
     """
-    Crée la table 'todos' si elle n'existe pas encore.
+    Crée les tables si elles n'existent pas encore.
 
     Appelée au démarrage de l'application FastAPI (événement startup).
-    La table contient :
-    - id : identifiant unique auto-incrémenté
-    - title : texte de la tâche (obligatoire)
-    - priority : niveau de priorité (haute, moyenne, basse), par défaut 'moyenne'
-    - completed : booléen (0 ou 1) pour l'état de complétion, par défaut 0
-    - created_at : date et heure de création au format ISO 8601 (locale)
+    Tables :
+    - todos : id, title, category, priority, completed, created_at
+    - categories : id, name, color, sort_order
     """
     conn = get_db()
     try:
@@ -53,11 +50,22 @@ def init_db():
             CREATE TABLE IF NOT EXISTS todos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
+                category TEXT DEFAULT NULL,
                 priority TEXT NOT NULL DEFAULT 'moyenne'
                     CHECK (priority IN ('haute', 'moyenne', 'basse')),
                 completed INTEGER NOT NULL DEFAULT 0
                     CHECK (completed IN (0, 1)),
                 created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                color TEXT NOT NULL DEFAULT '#6366f1',
+                sort_order INTEGER NOT NULL DEFAULT 0
             )
             """
         )

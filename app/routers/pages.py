@@ -13,12 +13,18 @@ from app.services import todo_service
 from app.models import TodoCreate
 
 
-def _render_todo_partial(request: Request, filter: str, db: Connection):
+def _render_todo_partial(
+    request: Request, filter: str, category: str | None, db: Connection
+):
     """Rendu du partial _todo_list.html avec les données actuelles."""
     if filter not in ("all", "active", "done"):
         filter = "all"
-    todos = todo_service.get_todos(db, filter_status=filter if filter != "all" else None)
+    cat = category if category and category != "all" else None
+
+    todos = todo_service.get_todos(db, filter_status=filter if filter != "all" else None, filter_category=cat)
     counts = todo_service.count_todos(db)
+    categories = todo_service.get_categories(db)
+
     return request.app.state.templates.TemplateResponse(
         request,
         "_todo_list.html",
@@ -26,7 +32,9 @@ def _render_todo_partial(request: Request, filter: str, db: Connection):
             "request": request,
             "todos": todos,
             "counts": counts,
+            "categories": categories,
             "filter": filter,
+            "current_category": category or "all",
         },
     )
 
@@ -40,26 +48,25 @@ router = APIRouter(
 def home(
     request: Request,
     filter: str = Query("all", alias="filter"),
+    category: str = Query("all", alias="category"),
     db: Connection = Depends(get_db),
 ):
     """
     Page d'accueil de l'application.
-
-    Si la requête vient de htmx (en-tête HX-Request présent),
-    on renvoie uniquement le partial _todo_list.html pour mise à jour
-    du conteneur #main-content sans rechargement de page.
-    Sinon, on renvoie la page complète index.html.
     """
     is_htmx = request.headers.get("HX-Request") == "true"
 
     if is_htmx:
-        return _render_todo_partial(request, filter, db)
+        return _render_todo_partial(request, filter, category, db)
 
     # Requête normale : page complète
     if filter not in ("all", "active", "done"):
         filter = "all"
-    todos = todo_service.get_todos(db, filter_status=filter if filter != "all" else None)
+    cat = category if category and category != "all" else None
+
+    todos = todo_service.get_todos(db, filter_status=filter if filter != "all" else None, filter_category=cat)
     counts = todo_service.count_todos(db)
+    categories = todo_service.get_categories(db)
 
     return request.app.state.templates.TemplateResponse(
         request,
@@ -68,7 +75,9 @@ def home(
             "request": request,
             "todos": todos,
             "counts": counts,
+            "categories": categories,
             "filter": filter,
+            "current_category": category,
         },
     )
 
@@ -78,18 +87,16 @@ def create_todo_htmx(
     request: Request,
     title: str = Form(...),
     priority: str = Form("moyenne"),
+    category: str = Form(""),
     db: Connection = Depends(get_db),
 ):
     """
     Crée une tâche via le formulaire htmx.
-
-    Reçoit les données du formulaire (title, priority),
-    crée la tâche en base, et renvoie le partial _todo_list.html
-    mis à jour pour remplacer #main-content.
     """
     if not title.strip():
-        return _render_todo_partial(request, "all", db)
+        return _render_todo_partial(request, "all", None, db)
 
-    data = TodoCreate(title=title.strip(), priority=priority)
+    cat = category.strip() or None
+    data = TodoCreate(title=title.strip(), priority=priority, category=cat)
     todo_service.create_todo(db, data)
-    return _render_todo_partial(request, "all", db)
+    return _render_todo_partial(request, "all", None, db)

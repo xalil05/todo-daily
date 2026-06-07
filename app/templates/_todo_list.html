@@ -3,7 +3,8 @@
     - Compteurs (total, actives, terminées)
     - Barre de filtres (toutes / actives / terminées) avec surlignage du filtre actif
     - Liste des tâches avec toggle, suppression et affichage de la priorité
-    Les variables attendues : todos (list[Todo]), counts (dict), filter (str)
+    Les variables attendues : todos (list[Todo]), counts (dict), filter (str),
+    categories (list[dict]), current_category (str)
 #}
 
 {# Compteurs en badges #}
@@ -18,6 +19,29 @@
         Terminées : {{ counts.done }}
     </span>
 </div>
+
+{# Barre de filtres par catégorie #}
+{% if categories %}
+<div class="mb-4 flex flex-wrap items-center gap-1.5">
+    <span class="text-xs font-medium text-gray-500 mr-1">Catégorie :</span>
+    <a href="/?filter={{ filter }}&amp;category=all"
+       hx-get="/?filter={{ filter }}&amp;category=all"
+       hx-target="#main-content" hx-push-url="true"
+       class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors
+              {% if current_category == 'all' %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">
+        Toutes
+    </a>
+    {% for cat in categories %}
+    <a href="/?filter={{ filter }}&amp;category={{ cat.name }}"
+       hx-get="/?filter={{ filter }}&amp;category={{ cat.name }}"
+       hx-target="#main-content" hx-push-url="true"
+       class="rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors"
+       style="{% if current_category == cat.name %}background-color:{{ cat.color }};color:white{% else %}background-color:{{ cat.color }}22;color:{{ cat.color }};border:1px solid {{ cat.color }}44{% endif %}">
+        {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
 
 {# Barre de filtres #}
 <div class="mb-6 flex gap-2">
@@ -97,6 +121,12 @@
                         {% else %}
                             <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">
                                 🟢 Basse
+                            </span>
+                        {% endif %}
+                        {# Badge catégorie #}
+                        {% if todo.category %}
+                            <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-600">
+                                🏷️ {{ todo.category }}
                             </span>
                         {% endif %}
                         {# Date de création #}

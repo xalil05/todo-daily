@@ -64,6 +64,41 @@ def edit_todo_form(
     </form>
     """)
 
+# ─── Catégories ────────────────────────────────────────
+
+@router.get("/categories", response_model=list[dict])
+def list_categories(db: Connection = Depends(get_db)):
+    """Liste toutes les catégories."""
+    return todo_service.get_categories(db)
+
+
+@router.post("/categories", response_model=dict, status_code=201)
+def add_category(
+    data: dict,
+    db: Connection = Depends(get_db),
+):
+    """Crée une nouvelle catégorie."""
+    name = data.get("name", "").strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="Le nom est requis")
+    color = data.get("color", "#6366f1")
+    try:
+        return todo_service.create_category(db, name, color)
+    except Exception as e:
+        raise HTTPException(status_code=409, detail=f"Catégorie déjà existante : {e}")
+
+
+@router.delete("/categories/{category_id}", status_code=204)
+def remove_category(
+    category_id: int,
+    request: Request,
+    db: Connection = Depends(get_db),
+):
+    """Supprime une catégorie."""
+    deleted = todo_service.delete_category(db, category_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Catégorie introuvable")
+
 
 @router.post("/", response_model=Todo, status_code=status.HTTP_201_CREATED)
 def create_todo(data: TodoCreate, db: Connection = Depends(get_db)):

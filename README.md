@@ -34,20 +34,20 @@
 
 | Jour | Focus principal | Secondaire |
 |:---:|---|---|
-| Lundi | 🏦 Dossier Bankable (Khady) | 🧺 BELLISSIMA |
-| Mardi | 🐛 BugCrush (Ahmada) | ✅ Todo Daily |
-| Mercredi | 🛡️ SecureShield (Codou) | 🌍 ProjecSen |
-| Jeudi | 🎨 Melo Studio | 🐍 Python Learning |
+| Lundi | 🏦 **Dossier Bankable** | 🧺 BELLISSIMA |
+| Mardi | 🐛 **BugCrush** | ✅ Todo Daily |
+| Mercredi | 🛡️ **SecureShield** | 🌍 ProjecSen |
+| Jeudi | 🎨 **Melo Studio** | 🐍 Python Learning |
 | Vendredi | 💼 Opérations / Bouclage | — |
 | Samedi | 🔬 R&D / Architecture | — |
 
 ## 🏗️ SaaS en construction
 
-- 🏦 **Dossier Bankable** — Automatisation dossiers d'entreprise bankables (Khady-Consulting)
-- 🐛 **BugCrush** — Pipeline de débogage SaaS (Ahmada)
-- 🛡️ **SecureShield** — Audit cybersécurité (Codou-Security)
-- 🎨 **Melo Studio** — Direction artistique (Brand + Deck + Social + Visio)
-- ⚡ **Prompto** — Prompt Factory (Exprompt)
+- 🏦 **Dossier Bankable** — Automatisation dossiers d'entreprise bankables
+- 🐛 **BugCrush** — Pipeline de débogage SaaS
+- 🛡️ **SecureShield** — Audit cybersécurité
+- 🎨 **Melo Studio** — Direction artistique
+- ⚡ **Prompto** — Prompt Factory
 
 ## 🛠️ Utilisation
 

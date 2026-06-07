@@ -8,17 +8,30 @@
     {# Favicon léger sous forme d'emoji (évite une requête 404) #}
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
 
-    {# Tailwind CSS v4 via CDN (script Play CDN) #}
+    {# Tailwind CSS via CDN #}
     <script src="https://cdn.tailwindcss.com"></script>
 
+    {# Configuration : mode sombre via .dark class (pas @media OS) #}
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
     {# htmx : attributs HTML pour requêtes AJAX (sans écrire de JS) #}
-    <script src="https://unpkg.com/htmx.org@2.0.3" 
-            integrity="sha384-tfrZ01b7+DlU6zJ/ZCxGNEbCmFlrHcOFGv4NL06rYW0HWY6LJx+ezNak8h0xD3o" 
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.3/dist/htmx.min.js"
             crossorigin="anonymous">
     </script>
 
-    {# Notre feuille de style personnalisée #}
-    <link rel="stylesheet" href="/static/css/style.css">
+    {# Feuille de style personnalisée + dark mode icônes #}
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
+    <style>
+        /* Visibilité des icônes du toggle theme (hors CDN Tailwind) */
+        #sun-icon { display: none; }
+        #moon-icon { display: block; }
+        .dark #sun-icon { display: block; }
+        .dark #moon-icon { display: none; }
+    </style>
 
     {# Script dark mode : restaure le thème avant l'affichage (évite le flash) #}
     <script>

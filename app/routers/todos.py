@@ -14,9 +14,10 @@ pour renvoyer le partial HTML au lieu du JSON, permettant une mise à jour
 du #main-content sans rechargement.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import HTMLResponse
 from sqlite3 import Connection
+import html
 
 from app.database import get_db
 from app.models import Todo, TodoCreate, TodoUpdate, TodoUpdateTitle
@@ -43,22 +44,17 @@ def edit_todo_form(
     if todo is None:
         raise HTTPException(status_code=404, detail="Tâche introuvable")
 
-    return HTMLResponse(f"""
-    <form class="inline-flex items-center gap-1">
-        <input type="text" id="edit-title-{todo.id}" name="title" value="{todo.title}"
-               maxlength="200" required
-               class="w-full rounded border border-indigo-400 px-2 py-1 text-sm"
-               autofocus
+    return HTMLResponse(f"""\
+    <form class="inline-flex items-center gap-1 w-full"
+          hx-put="/api/todos/{todo.id}/title"
+          hx-target="#main-content"
+          hx-trigger="submit">
+        <input type="text" name="title" value="{html.escape(todo.title)}"
+               maxlength="200" required autofocus
                onfocus="this.select()"
-               hx-put="/api/todos/{todo.id}/title"
-               hx-target="#main-content"
-               hx-trigger="keydown[key=='Enter'], blur"
-               hx-vals='js:{{"title": document.getElementById("edit-title-{todo.id}").value}}'>
-        <button type="button"
-                class="rounded bg-indigo-600 px-2 py-1 text-xs text-white hover:bg-indigo-700"
-                hx-put="/api/todos/{todo.id}/title"
-                hx-target="#main-content"
-                hx-vals='js:{{"title": document.getElementById("edit-title-{todo.id}").value}}'>
+               class="flex-1 min-w-0 rounded-lg border border-indigo-400 dark:border-indigo-500 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+        <button type="submit"
+                class="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-colors">
             OK
         </button>
     </form>
@@ -152,6 +148,28 @@ def get_todo(todo_id: int, db: Connection = Depends(get_db)):
     return todo
 
 
+@router.post("/{todo_id}/toggle")
+def toggle_todo(
+    todo_id: int,
+    request: Request,
+    db: Connection = Depends(get_db),
+):
+    """Bascule l'état completed d'une tâche."""
+    todo = todo_service.get_todo_by_id(db, todo_id)
+    if todo is None:
+        raise HTTPException(status_code=404)
+
+    data = TodoUpdate(completed=not todo.completed)
+    updated = todo_service.update_todo_completed(db, todo_id, data)
+    
+    if request.headers.get("HX-Request") == "true":
+        return HTMLResponse(
+            _render_todo_partial(request, "all", None, db).body
+        )
+    
+    return updated
+
+
 @router.patch("/{todo_id}", response_model=Todo)
 def update_todo_completed(
     todo_id: int,
@@ -175,7 +193,7 @@ def update_todo_completed(
     # Si htmx : renvoyer le partial HTML au lieu du JSON
     if request.headers.get("HX-Request") == "true":
         return HTMLResponse(
-            _render_todo_partial(request, "all", db).body
+            _render_todo_partial(request, "all", None, db).body
         )
 
     return updated
@@ -184,15 +202,15 @@ def update_todo_completed(
 @router.put("/{todo_id}/title", response_model=Todo)
 def update_todo_title(
     todo_id: int,
-    data: TodoUpdateTitle,
     request: Request,
+    title: str = Form(...),
     db: Connection = Depends(get_db),
 ):
     """
     Modifie le titre d'une tâche.
     Si la requête vient de htmx, renvoie le partial HTML.
     """
-    updated = todo_service.update_todo_title(db, todo_id, data.title)
+    updated = todo_service.update_todo_title(db, todo_id, title)
     if updated is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -201,7 +219,7 @@ def update_todo_title(
 
     if request.headers.get("HX-Request") == "true":
         return HTMLResponse(
-            _render_todo_partial(request, "all", db).body
+            _render_todo_partial(request, "all", None, db).body
         )
 
     return updated
@@ -229,6 +247,6 @@ def delete_todo(
     # Si htmx : renvoyer le partial HTML au lieu du 204
     if request.headers.get("HX-Request") == "true":
         return HTMLResponse(
-            _render_todo_partial(request, "all", db).body
+            _render_todo_partial(request, "all", None, db).body
         )
     # Pas de return → FastAPI renverra automatiquement une réponse 204 vide

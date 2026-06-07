@@ -32,6 +32,177 @@ html *::after {
   outline-offset: 2px;
 }
 
+/* =============================================
+   Light mode — fond beige crème
+   ============================================= */
+html:not(.dark) body.bg-gray-50 {
+  background-color: #F8F4EC;
+}
+
+/* =============================================
+   Hover & transitions globales
+   ============================================= */
+
+/* Cartes & conteneurs — lift au hover */
+.card-hover,
+form.rounded-xl,
+div.rounded-xl.bg-white,
+li.rounded-xl {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-hover:hover,
+form.rounded-xl:hover,
+div.rounded-xl.bg-white:not(.group):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+html:not(.dark) form.rounded-xl:hover,
+html:not(.dark) div.rounded-xl.bg-white:not(.group):hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+/* Champs input/select — hover border */
+input[type="text"]:hover,
+input[type="date"]:hover,
+input[type="time"]:hover,
+select:hover {
+  border-color: #a5b4fc !important; /* indigo-300 */
+}
+html.dark input[type="text"]:hover,
+html.dark input[type="date"]:hover,
+html.dark input[type="time"]:hover,
+html.dark select:hover {
+  border-color: #6366f1 !important; /* indigo-500 */
+}
+
+/* Badges compteurs — hover lift */
+.mb-4 .inline-flex.items-center.gap-1\.5.rounded-lg {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mb-4 .inline-flex.items-center.gap-1\.5.rounded-lg:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Bouton supprimer — glow au hover */
+button[title="Supprimer"]:hover {
+  transform: scale(1.1);
+}
+
+/* Filtres catégories — scale léger */
+.rounded-full.px-2\.5:not(.bg-indigo-600):hover {
+  transform: scale(1.04);
+}
+
+/* =============================================
+   Dark Mode — overrides manuels via la classe .dark
+   (Tailwind v4 CDN ne génère pas les règles `dark:` 
+    en runtime JIT, donc on les définit ici.)
+   ============================================= */
+
+.dark {
+  background-color: #111827; /* gray-900 */
+  color: #f3f4f6;           /* gray-100 */
+}
+
+.dark body {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+/* Icônes du toggle theme : visibilité en dark */
+.dark #moon-icon { display: none !important; }
+.dark #sun-icon { display: block !important; }
+
+/* Styles généraux en dark */
+.dark .ring-1 {
+  --tw-ring-color: rgb(55 65 81 / 1) !important; /* gray-700 */
+}
+
+.dark .bg-white {
+  background-color: #1f2937 !important; /* gray-800 */
+}
+
+.dark .bg-gray-50 {
+  background-color: #111827 !important; /* gray-900 */
+}
+
+.dark .bg-gray-100 {
+  background-color: #374151 !important; /* gray-700 */
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+.dark .text-gray-600 {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+.dark .text-gray-700 {
+  color: #d1d5db !important; /* gray-300 */
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+.dark .text-gray-900 {
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+.dark .border-gray-200 {
+  border-color: #374151 !important; /* gray-700 */
+}
+
+.dark .border-gray-300 {
+  border-color: #4b5563 !important; /* gray-600 */
+}
+
+.dark .border-gray-600 {
+  border-color: #6b7280 !important; /* gray-500 */
+}
+
+.dark .placeholder-gray-400::placeholder {
+  color: #6b7280 !important; /* gray-500 */
+}
+
+.dark .placeholder-gray-500::placeholder {
+  color: #6b7280 !important; /* gray-500 */
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #374151 !important;
+}
+
+.dark .hover\:bg-gray-200:hover {
+  background-color: #4b5563 !important;
+}
+
+.dark .hover\:shadow-md {
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3) !important;
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+}
+
+.dark .shadow-sm {
+  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+}
+
+/* Scrollbar dark */
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
 /* Amélioration du curseur sur les éléments interactifs */
 button, select, input[type="checkbox"] {
   cursor: pointer;

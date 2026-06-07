@@ -37,6 +37,7 @@ def init_db():
                 title TEXT NOT NULL,
                 category TEXT DEFAULT NULL,
                 due_date TEXT DEFAULT NULL,
+                due_time TEXT DEFAULT NULL,
                 priority TEXT NOT NULL DEFAULT 'moyenne'
                     CHECK (priority IN ('haute', 'moyenne', 'basse')),
                 completed INTEGER NOT NULL DEFAULT 0
@@ -45,6 +46,11 @@ def init_db():
             )
             """
         )
+        # Migration : ajouter due_time si la colonne n'existe pas encore
+        try:
+            conn.execute("ALTER TABLE todos ADD COLUMN due_time TEXT DEFAULT NULL")
+        except Exception:
+            pass  # La colonne existe déjà
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS categories (

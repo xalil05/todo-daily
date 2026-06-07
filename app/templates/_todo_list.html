@@ -7,18 +7,28 @@
     categories (list[dict]), current_category (str)
 #}
 
-{# Compteurs en badges #}
-<div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-    <span class="rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 font-medium dark:text-gray-300">
-        Total : {{ counts.total }}
+{# Compteurs en badges modernes #}
+<div class="mb-4 flex flex-wrap items-center gap-2">
+    <span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 dark:bg-gray-700/50 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>
+        {{ counts.total }} tâche{% if counts.total > 1 %}s{% endif %}
     </span>
-    <span class="rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-3 py-1 font-medium text-yellow-800 dark:text-yellow-300">
-        Actives : {{ counts.active }}
+    <span class="inline-flex items-center gap-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1.5 text-sm font-medium text-yellow-700 dark:text-yellow-300">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        {{ counts.active }} en cours
     </span>
-    <span class="rounded-full bg-green-100 dark:bg-green-900/40 px-3 py-1 font-medium text-green-800 dark:text-green-300">
-        Terminées : {{ counts.done }}
+    <span class="inline-flex items-center gap-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        {{ counts.done }} terminée{% if counts.done > 1 %}s{% endif %}
     </span>
 </div>
+
+{# Barre de progression #}
+{% if counts.total > 0 %}
+<div class="mb-4 h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-700/50 overflow-hidden">
+    <div class="h-full rounded-full bg-green-500 transition-all duration-500" style="width: {{ (counts.done / counts.total * 100)|round }}%"></div>
+</div>
+{% endif %}
 
 {# Barre de filtres par catégorie #}
 {% if categories %}
@@ -70,76 +80,89 @@
 
 {# Liste des tâches #}
 {% if todos|length == 0 %}
-    <div class="rounded-lg bg-white dark:bg-gray-800 p-8 text-center shadow-sm ring-1 ring-gray-200 dark:ring-gray-700">
-        <p class="text-gray-500 dark:text-gray-400">🎉 Aucune tâche pour le moment.</p>
+    <div class="rounded-xl bg-white dark:bg-gray-800 p-10 text-center shadow-sm ring-1 ring-gray-100 dark:ring-gray-700/50">
+        <div class="text-4xl mb-3">🎉</div>
+        <p class="text-gray-500 dark:text-gray-400 font-medium">Aucune tâche pour le moment.</p>
         <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">Ajoutez-en une ci-dessus !</p>
     </div>
 {% else %}
-    <ul class="space-y-2" id="todo-list">
+    <ul class="space-y-2.5" id="todo-list">
         {% for todo in todos %}
             <li
                 id="todo-{{ todo.id }}"
-                class="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20"
+                class="group flex items-center gap-3 rounded-xl bg-white dark:bg-gray-800/90 px-4 py-3.5 shadow-sm ring-1 ring-gray-100 dark:ring-gray-700/50 transition-all duration-200
+                       hover:shadow-md hover:ring-gray-200 dark:hover:ring-gray-600/50
+                       {% if todo.completed %}opacity-75{% endif %}"
             >
-                {# Checkbox pour marquer comme fait / non fait #}
+                {# Checkbox #}
                 <input
                     type="checkbox"
                     {% if todo.completed %}checked{% endif %}
-                    class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                    hx-patch="/api/todos/{{ todo.id }}"
+                    class="h-5 w-5 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500/30 focus:ring-offset-0 cursor-pointer shrink-0
+                           {% if todo.completed %}accent-indigo-500{% endif %}"
+                    hx-post="/api/todos/{{ todo.id }}/toggle"
                     hx-target="#main-content"
                     hx-trigger="change"
-                    hx-vals='js:{"completed": this.checked}'
-                    title="Marquer comme {% if todo.completed %}non terminée{% else %}terminée{% endif %}"
+                    hx-confirm="{% if todo.completed %}Remettre en cours ?{% else %}Marquer comme terminée ?{% endif %}"
+                    title="{% if todo.completed %}Cliquer pour réouvrir{% else %}Marquer comme terminée{% endif %}"
                 >
 
-                {# Contenu de la tâche #}
+                {# Contenu #}
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 {% if todo.completed %}line-through{% endif %}"
+                    <p class="text-sm font-medium {% if todo.completed %}text-gray-400 dark:text-gray-500 line-through{% else %}text-gray-900 dark:text-gray-100{% endif %}"
                        hx-get="/api/todos/{{ todo.id }}/edit"
                        hx-trigger="dblclick"
                        hx-target="this"
                        hx-swap="outerHTML"
                        title="Double-cliquer pour modifier">
                         {{ todo.title }}
-                        <span class="ml-1 inline-flex text-gray-300 hover:text-gray-500 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3.5 w-3.5">
+                        <span class="ml-1 inline-flex text-gray-200 group-hover:text-gray-400 dark:text-gray-600 dark:group-hover:text-gray-400 transition-colors cursor-pointer"
+                              hx-get="/api/todos/{{ todo.id }}/edit"
+                              hx-trigger="click"
+                              hx-target="closest p"
+                              hx-swap="outerHTML"
+                              title="Modifier">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3 w-3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
                             </svg>
                         </span>
                     </p>
-                    <div class="mt-0.5 flex items-center gap-2 text-xs text-gray-500">
-                        {# Badge priorité avec couleur #}
+                    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                        {# Priorité #}
                         {% if todo.priority == 'haute' %}
-                            <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-red-700 dark:text-red-300">
-                                🔴 Haute
+                            <span class="inline-flex items-center gap-1 rounded-md bg-red-50 dark:bg-red-900/25 px-1.5 py-0.5 text-red-600 dark:text-red-400 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Haute
                             </span>
                         {% elif todo.priority == 'moyenne' %}
-                            <span class="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-2 py-0.5 text-yellow-700 dark:text-yellow-300">
-                                🟡 Moyenne
+                            <span class="inline-flex items-center gap-1 rounded-md bg-yellow-50 dark:bg-yellow-900/25 px-1.5 py-0.5 text-yellow-600 dark:text-yellow-400 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Moyenne
                             </span>
                         {% else %}
-                            <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-0.5 text-green-700 dark:text-green-300">
-                                🟢 Basse
+                            <span class="inline-flex items-center gap-1 rounded-md bg-green-50 dark:bg-green-900/25 px-1.5 py-0.5 text-green-600 dark:text-green-400 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Basse
                             </span>
                         {% endif %}
-                        {# Badge catégorie #}
+                        {# Catégorie #}
                         {% if todo.category %}
-                            <span class="inline-flex items-center rounded-full bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 text-indigo-600 dark:text-indigo-300">
-                                🏷️ {{ todo.category }}
+                            <span class="inline-flex items-center gap-1 rounded-md bg-indigo-50 dark:bg-indigo-900/25 px-1.5 py-0.5 text-indigo-600 dark:text-indigo-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/></svg>
+                                {{ todo.category }}
                             </span>
                         {% endif %}
-                        {# Badge échéance #}
+                        {# Échéance #}
                         {% if todo.due_date %}
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 {% if not todo.completed and todo.due_date < today %}bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 font-medium{% else %}bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400{% endif %}">
-                                📅 {{ todo.due_date }}
+                            <span class="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 {% if not todo.completed and todo.due_date < today %}bg-red-50 dark:bg-red-900/25 text-red-600 dark:text-red-400 font-medium{% else %}bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400{% endif %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
+                                {{ todo.due_date }}{% if todo.due_time %} à {{ todo.due_time }}{% endif %}
                                 {% if not todo.completed and todo.due_date < today %}
                                     <span class="ml-0.5">⚠️</span>
                                 {% endif %}
                             </span>
                         {% endif %}
-                        {# Date de création #}
-                        <span class="text-gray-500 dark:text-gray-400">Créée le {{ todo.created_at[:10] }}</span>
+                        {# Création avec heure #}
+                        <span class="text-gray-400 dark:text-gray-500">
+                            {{ todo.created_at[:10] }} à {{ todo.created_at[11:16] }}
+                        </span>
                     </div>
                 </div>
 
@@ -148,10 +171,10 @@
                     hx-delete="/api/todos/{{ todo.id }}"
                     hx-target="#main-content"
                     hx-confirm="Supprimer cette tâche ?"
-                    class="ml-auto flex-shrink-0 rounded-md p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    class="opacity-0 group-hover:opacity-100 ml-auto flex-shrink-0 rounded-lg p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500 transition-all duration-200 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                     title="Supprimer"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
                 </button>

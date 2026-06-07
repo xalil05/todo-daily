@@ -93,6 +93,7 @@ def create_todo_htmx(
     priority: str = Form("moyenne"),
     category: str = Form(""),
     due_date: str = Form(""),
+    due_time: str = Form(""),
     db: Connection = Depends(get_db),
 ):
     """
@@ -103,6 +104,7 @@ def create_todo_htmx(
 
     cat = category.strip() or None
     dd = due_date.strip() or None
-    data = TodoCreate(title=title.strip(), priority=priority, category=cat, due_date=dd)
+    dt = due_time.strip() or None
+    data = TodoCreate(title=title.strip(), priority=priority, category=cat, due_date=dd, due_time=dt)
     todo_service.create_todo(db, data)
     return _render_todo_partial(request, "all", None, db)

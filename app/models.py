@@ -29,6 +29,10 @@ class TodoCreate(BaseModel):
         default=None,
         description="Date d'échéance (format YYYY-MM-DD)"
     )
+    due_time: str | None = Field(
+        default=None,
+        description="Heure d'échéance (format HH:MM)"
+    )
     priority: str = Field(
         default="moyenne",
         pattern=r"^(haute|moyenne|basse)$",
@@ -77,6 +81,7 @@ class Todo(BaseModel):
     title: str
     category: str | None
     due_date: str | None
+    due_time: str | None
     priority: str
     completed: bool
     created_at: str  # format ISO 8601 (chaîne renvoyée par SQLite)

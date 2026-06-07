@@ -1,39 +1,96 @@
-# Todo-Daily
+# 🏢 Project Hub (ex Todo-Daily)
 
-Application de todo list quotidienne pour organiser vos journées efficacement.
+**Hub central de gestion de projets SaaS et personnels.** Dashboard, planning hebdomadaire, suivi d'historique et objectifs du jour — le tout dans une app FastAPI légère avec htmx.
 
-## Stack
+```
+10 projets · 4 SaaS · Planning intégré · Historique de sessions
+```
 
-- Python 3.11+
-- FastAPI
-- SQLite
-- Jinja2 + htmx
-- Tailwind CSS v4
-- UV
+---
 
-## Architecture
+## ✨ Fonctionnalités
+
+| Fonctionnalité | Description |
+|---|---|
+| 🏠 **Dashboard projets** | Vue d'ensemble des 10 projets (SaaS + perso) avec statuts |
+| 📅 **Planning hebdomadaire** | Focus principal/secondaire par jour (Lun→Sam) |
+| 📄 **Page détail** | Historique + objectifs du jour par projet |
+| 🎯 **Objectifs du jour** | Ajout, complétion, seed automatique pour le lendemain |
+| 📜 **Historique de sessions** | Logging de fin de session avec `end-session` |
+| 🎬 **Bouton Fin de session** | Modal sur chaque projet pour logger + objectiver demain |
+| 🌙 **Dark mode** | Basculable, sauvegardé dans localStorage |
+| 📱 **Responsive** | Tailwind CSS, mobile-first |
+
+## 🚀 Stack
+
+- Python 3.11+ / FastAPI
+- SQLite (zero config)
+- Jinja2 + htmx (AJAX sans JS)
+- Tailwind CSS v4 (CDN)
+- UV (package manager)
+- Pillow (génération d'images)
+
+## 🗓️ Planning hebdomadaire
+
+| Jour | Focus principal | Secondaire |
+|:---:|---|---|
+| Lundi | 🏦 Dossier Bankable (Khady) | 🧺 BELLISSIMA |
+| Mardi | 🐛 BugCrush (Ahmada) | ✅ Todo Daily |
+| Mercredi | 🛡️ SecureShield (Codou) | 🌍 ProjecSen |
+| Jeudi | 🎨 Melo Studio | 🐍 Python Learning |
+| Vendredi | 💼 Opérations / Bouclage | — |
+| Samedi | 🔬 R&D / Architecture | — |
+
+## 🏗️ SaaS en construction
+
+- 🏦 **Dossier Bankable** — Automatisation dossiers d'entreprise bankables (Khady-Consulting)
+- 🐛 **BugCrush** — Pipeline de débogage SaaS (Ahmada)
+- 🛡️ **SecureShield** — Audit cybersécurité (Codou-Security)
+- 🎨 **Melo Studio** — Direction artistique (Brand + Deck + Social + Visio)
+- ⚡ **Prompto** — Prompt Factory (Exprompt)
+
+## 🛠️ Utilisation
+
+```bash
+# Lancer le serveur
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8002
+
+# Rituel de fin de session
+~/.hermes/scripts/end-session <projet> "Ce qu'on a fait" "Objectif de demain"
+
+# Ou depuis l'interface : bouton 🎬 Fin de session sur chaque projet
+```
+
+## 📁 Architecture
 
 ```
 todo-daily/
 ├── app/
-│   ├── main.py              # Point d'entrée FastAPI
-│   ├── database.py          # Connexion SQLite + création des tables
-│   ├── models.py            # Modèles Pydantic (validation des données)
+│   ├── main.py                 # Point d'entrée FastAPI
+│   ├── database.py             # SQLite (tables: todos, projects, logs, objectives)
+│   ├── models.py               # Modèles Pydantic
 │   ├── routers/
-│   │   ├── todos.py         # API CRUD des todos (JSON)
-│   │   └── pages.py         # Routes HTML (pages web)
+│   │   ├── todos.py            # API CRUD todos
+│   │   ├── pages.py            # Routes HTML todos
+│   │   └── projects.py         # Routes projets (pages + API)
 │   ├── services/
-│   │   └── todo_service.py  # Logique métier (business logic)
+│   │   ├── todo_service.py     # Logique todos
+│   │   └── project_service.py  # Logique projets (CRUD, weekly, seed)
 │   ├── templates/
-│   │   ├── base.html        # Layout commun (navbar, footer)
-│   │   ├── index.html       # Page principale
-│   │   └── components/      # Petits bouts de HTML réutilisables
-│   └── static/
-│       └── css/
-│           └── style.css    # Styles Tailwind personnalisés
+│   │   ├── base.html           # Layout (navigation ✅ Todo · 🏢 Projets · 📅 Semaine)
+│   │   ├── index.html          # Page todos
+│   │   └── projects/
+│   │       ├── dashboard.html  # Hub projets
+│   │       ├── detail.html     # Détail projet + historique
+│   │       ├── weekly.html     # Planning hebdo
+│   │       ├── _log_list.html  # Partial logs (htmx)
+│   │       └── _objective_list.html  # Partial objectifs (htmx)
+│   └── static/css/style.css
 ├── tests/
-│   └── test_todos.py        # Tests de l'application
-├── pyproject.toml            # Configuration UV + dépendances
-├── .gitignore                # Fichiers à ignorer par Git
-└── README.md                 # Ce fichier
+├── pyproject.toml
+└── README.md
 ```
+
+---
+
+**Built by Ibrahima Xaliloulah Ndiaye** · AMICO TECH · 2026

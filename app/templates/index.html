@@ -1,16 +1,84 @@
-<!-- 📋 app/templates/index.html -->
-<!-- Page principale de la todo list -->
-<!--
-    Rôle : page complète avec :
-    - Formulaire d'ajout de tâche
-    - Liste des tâches
-    - Filtres (tout/actif/fait)
-    - Boutons pour chaque tâche (faire/supprimer)
-    
-    Utilise htmx pour les interactions sans rechargement :
-    - hx-post="/api/todos" → ajouter une tâche
-    - hx-put="/api/todos/{{ id }}" → marquer comme fait
-    - hx-delete="/api/todos/{{ id }}" → supprimer
-    
-    La page hérite de base.html avec {% extends "base.html" %}
--->
+{% extends "base.html" %}
+
+{% block title %}Ma Todo quotidienne{% endblock %}
+
+{% block content %}
+    {# En-tête avec le titre de l'application #}
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-800">
+            ✅ Todo-Daily
+        </h1>
+        <p class="mt-2 text-gray-500">Gérez vos tâches simplement, sans rechargement.</p>
+    </div>
+
+    {# 
+        Formulaire d'ajout.
+        hx-post envoie les données à /api/todos en AJAX.
+        hx-target="#main-content" : la réponse HTML remplacera tout le conteneur.
+        hx-swap="innerHTML" : remplace le contenu interne de la cible.
+        Après soumission, on vide les champs avec hx-on::after-request (équivalent JS)
+    #}
+    <form
+        id="add-todo-form"
+        hx-post="/todos"
+        hx-target="#main-content"
+        hx-swap="innerHTML"
+        class="mb-6 rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200"
+    >
+        <div class="flex flex-col gap-3 sm:flex-row">
+            {# Champ titre #}
+            <input
+                type="text"
+                name="title"
+                required
+                minlength="1"
+                maxlength="200"
+                placeholder="Que devez-vous faire ?"
+                class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-gray-700 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                autofocus
+            >
+
+            {# Sélecteur de priorité #}
+            <select
+                name="priority"
+                class="rounded-md border border-gray-300 px-3 py-2 text-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+                <option value="haute">🔴 Haute</option>
+                <option value="moyenne" selected>🟡 Moyenne</option>
+                <option value="basse">🟢 Basse</option>
+            </select>
+
+            {# Bouton d'ajout #}
+            <button
+                type="submit"
+                class="rounded-md bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+                Ajouter
+            </button>
+        </div>
+    </form>
+
+    {#
+        Conteneur principal mis à jour dynamiquement par htmx.
+        Au chargement initial, le contenu est généré par le serveur via le partial.
+        Les actions (ajout, suppression, toggle, filtres) ciblent ce bloc.
+    #}
+    <div id="main-content">
+        {% include '_todo_list.html' %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {# 
+        Petit script pour vider le champ titre après l'ajout réussi.
+        On écoute l'événement htmx:afterRequest sur le formulaire.
+        Dès qu'une réponse est reçue (succès ou erreur), on réinitialise le champ.
+        Cela n'utilise pas de logique métier complexe, juste un confort utilisateur.
+    #}
+    <script>
+        document.getElementById('add-todo-form').addEventListener('htmx:afterRequest', function() {
+            this.reset();
+            this.querySelector('input[name="title"]').focus();
+        });
+    </script>
+{% endblock %}

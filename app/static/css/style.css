@@ -1,11 +1,46 @@
-/* 🎨 app/static/css/style.css */
-/* Styles personnalisés pour la todo list */
 /*
-    Rôle : compléter Tailwind avec des styles perso
-    - Couleurs personnalisées
-    - Animations
-    - Transitions pour htmx
-    
-    Avec Tailwind, on écrit surtout du HTML avec des classes.
-    Ce fichier sert pour les petites retouches.
-*/
+ * Styles complémentaires pour Todo-Daily.
+ * Utilisé en conjonction avec Tailwind CSS v4 (CDN).
+ */
+
+/* Animation de fondu pour les échanges htmx */
+#main-content.htmx-swapping {
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+
+#main-content.htmx-settling {
+  opacity: 1;
+  transition: opacity 0.15s ease-in-out;
+}
+
+/* Style de focus visible personnalisé pour l'accessibilité */
+:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* Amélioration du curseur sur les éléments interactifs */
+button, select, input[type="checkbox"] {
+  cursor: pointer;
+}
+
+/* Personnalisation légère des barres de défilement (Webkit) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

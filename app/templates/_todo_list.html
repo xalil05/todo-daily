@@ -1,0 +1,112 @@
+{#
+    Partial contenant la liste des tâches et les contrôles.
+    - Compteurs (total, actives, terminées)
+    - Barre de filtres (toutes / actives / terminées) avec surlignage du filtre actif
+    - Liste des tâches avec toggle, suppression et affichage de la priorité
+    Les variables attendues : todos (list[Todo]), counts (dict), filter (str)
+#}
+
+{# Compteurs en badges #}
+<div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+    <span class="rounded-full bg-gray-100 px-3 py-1 font-medium">
+        Total : {{ counts.total }}
+    </span>
+    <span class="rounded-full bg-yellow-100 px-3 py-1 font-medium text-yellow-800">
+        Actives : {{ counts.active }}
+    </span>
+    <span class="rounded-full bg-green-100 px-3 py-1 font-medium text-green-800">
+        Terminées : {{ counts.done }}
+    </span>
+</div>
+
+{# Barre de filtres #}
+<div class="mb-6 flex gap-2">
+    {% set filters = [
+        ('all', 'Toutes'),
+        ('active', 'Actives'),
+        ('done', 'Terminées'),
+    ] %}
+    {% for value, label in filters %}
+        <a
+            href="/?filter={{ value }}"
+            hx-get="/?filter={{ value }}"
+            hx-target="#main-content"
+            hx-push-url="true"
+            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors
+                   {% if filter == value %}
+                       bg-indigo-600 text-white shadow-sm
+                   {% else %}
+                       bg-white text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50
+                   {% endif %}"
+        >
+            {{ label }}
+        </a>
+    {% endfor %}
+</div>
+
+{# Liste des tâches #}
+{% if todos|length == 0 %}
+    <div class="rounded-lg bg-white p-8 text-center shadow-sm ring-1 ring-gray-200">
+        <p class="text-gray-500">🎉 Aucune tâche pour le moment.</p>
+        <p class="mt-1 text-sm text-gray-400">Ajoutez-en une ci-dessus !</p>
+    </div>
+{% else %}
+    <ul class="space-y-2" id="todo-list">
+        {% for todo in todos %}
+            <li
+                id="todo-{{ todo.id }}"
+                class="flex items-center gap-3 rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-md"
+            >
+                {# Checkbox pour marquer comme fait / non fait #}
+                <input
+                    type="checkbox"
+                    {% if todo.completed %}checked{% endif %}
+                    class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    hx-patch="/api/todos/{{ todo.id }}"
+                    hx-target="#main-content"
+                    hx-trigger="change"
+                    hx-vals='js:{"completed": this.checked}'
+                    title="Marquer comme {% if todo.completed %}non terminée{% else %}terminée{% endif %}"
+                >
+
+                {# Contenu de la tâche #}
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-gray-900 {% if todo.completed %}line-through{% endif %}">
+                        {{ todo.title }}
+                    </p>
+                    <div class="mt-0.5 flex items-center gap-2 text-xs text-gray-500">
+                        {# Badge priorité avec couleur #}
+                        {% if todo.priority == 'haute' %}
+                            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-red-700">
+                                🔴 Haute
+                            </span>
+                        {% elif todo.priority == 'moyenne' %}
+                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-700">
+                                🟡 Moyenne
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">
+                                🟢 Basse
+                            </span>
+                        {% endif %}
+                        {# Date de création #}
+                        <span>Créée le {{ todo.created_at[:10] }}</span>
+                    </div>
+                </div>
+
+                {# Bouton supprimer #}
+                <button
+                    hx-delete="/api/todos/{{ todo.id }}"
+                    hx-target="#main-content"
+                    hx-confirm="Supprimer cette tâche ?"
+                    class="ml-auto flex-shrink-0 rounded-md p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    title="Supprimer"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg>
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

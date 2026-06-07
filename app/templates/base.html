@@ -1,13 +1,37 @@
-<!-- 🏗️ app/templates/base.html -->
-<!-- Layout commun à toutes les pages -->
-<!--
-    Rôle : template de base qui contient :
-    - Le <head> avec les liens CSS/Tailwind
-    - La barre de navigation
-    - Le bloc "content" que les autres pages rempliront
-    - Les scripts (htmx, etc.)
-    
-    Jinja2 utilise la syntaxe :
-    - {% block content %} ... {% endblock %} → zone à remplir
-    - {{ variable }} → afficher une variable
--->    
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Todo-Daily{% endblock %}</title>
+
+    {# Favicon léger sous forme d'emoji (évite une requête 404) #}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+
+    {# Tailwind CSS v4 via CDN (script Play CDN) #}
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    {# htmx : attributs HTML pour requêtes AJAX (sans écrire de JS) #}
+    <script src="https://unpkg.com/htmx.org@2.0.3" 
+            integrity="sha384-tfrZ01b7+DlU6zJ/ZCxGNEbCmFlrHcOFGv4NL06rYW0HWY6LJx+ezNak8h0xD3o" 
+            crossorigin="anonymous">
+    </script>
+
+    {# Notre feuille de style personnalisée (minime, surtout pour les animations) #}
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    {# Bloc pour ajouter des éléments dans le <head> (meta, styles supplémentaires) #}
+    {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50 text-gray-900 antialiased">
+    {# Conteneur principal centré #}
+    <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
+        {% block content %}
+        {# Ici viendra le contenu spécifique à chaque page #}
+        {% endblock %}
+    </div>
+
+    {# Bloc pour scripts supplémentaires en bas de page #}
+    {% block scripts %}{% endblock %}
+</body>
+</html>

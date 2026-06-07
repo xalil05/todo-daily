@@ -8,14 +8,14 @@
 #}
 
 {# Compteurs en badges #}
-<div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-600">
-    <span class="rounded-full bg-gray-100 px-3 py-1 font-medium">
+<div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+    <span class="rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 font-medium dark:text-gray-300">
         Total : {{ counts.total }}
     </span>
-    <span class="rounded-full bg-yellow-100 px-3 py-1 font-medium text-yellow-800">
+    <span class="rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-3 py-1 font-medium text-yellow-800 dark:text-yellow-300">
         Actives : {{ counts.active }}
     </span>
-    <span class="rounded-full bg-green-100 px-3 py-1 font-medium text-green-800">
+    <span class="rounded-full bg-green-100 dark:bg-green-900/40 px-3 py-1 font-medium text-green-800 dark:text-green-300">
         Terminées : {{ counts.done }}
     </span>
 </div>
@@ -60,7 +60,7 @@
                    {% if filter == value %}
                        bg-indigo-600 text-white shadow-sm
                    {% else %}
-                       bg-white text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50
+                       bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 ring-1 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700
                    {% endif %}"
         >
             {{ label }}
@@ -70,16 +70,16 @@
 
 {# Liste des tâches #}
 {% if todos|length == 0 %}
-    <div class="rounded-lg bg-white p-8 text-center shadow-sm ring-1 ring-gray-200">
-        <p class="text-gray-500">🎉 Aucune tâche pour le moment.</p>
-        <p class="mt-1 text-sm text-gray-400">Ajoutez-en une ci-dessus !</p>
+    <div class="rounded-lg bg-white dark:bg-gray-800 p-8 text-center shadow-sm ring-1 ring-gray-200 dark:ring-gray-700">
+        <p class="text-gray-500 dark:text-gray-400">🎉 Aucune tâche pour le moment.</p>
+        <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">Ajoutez-en une ci-dessus !</p>
     </div>
 {% else %}
     <ul class="space-y-2" id="todo-list">
         {% for todo in todos %}
             <li
                 id="todo-{{ todo.id }}"
-                class="flex items-center gap-3 rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-md"
+                class="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20"
             >
                 {# Checkbox pour marquer comme fait / non fait #}
                 <input
@@ -95,7 +95,7 @@
 
                 {# Contenu de la tâche #}
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-gray-900 {% if todo.completed %}line-through{% endif %}"
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 {% if todo.completed %}line-through{% endif %}"
                        hx-get="/api/todos/{{ todo.id }}/edit"
                        hx-trigger="dblclick"
                        hx-target="this"
@@ -111,27 +111,27 @@
                     <div class="mt-0.5 flex items-center gap-2 text-xs text-gray-500">
                         {# Badge priorité avec couleur #}
                         {% if todo.priority == 'haute' %}
-                            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-red-700">
+                            <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-red-700 dark:text-red-300">
                                 🔴 Haute
                             </span>
                         {% elif todo.priority == 'moyenne' %}
-                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-700">
+                            <span class="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-2 py-0.5 text-yellow-700 dark:text-yellow-300">
                                 🟡 Moyenne
                             </span>
                         {% else %}
-                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-green-700">
+                            <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-0.5 text-green-700 dark:text-green-300">
                                 🟢 Basse
                             </span>
                         {% endif %}
                         {# Badge catégorie #}
                         {% if todo.category %}
-                            <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-600">
+                            <span class="inline-flex items-center rounded-full bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 text-indigo-600 dark:text-indigo-300">
                                 🏷️ {{ todo.category }}
                             </span>
                         {% endif %}
                         {# Badge échéance #}
                         {% if todo.due_date %}
-                            <span class="inline-flex items-center rounded-full px-2 py-0.5 {% if not todo.completed and todo.due_date < today %}bg-red-50 text-red-600 font-medium{% else %}bg-gray-50 text-gray-500{% endif %}">
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 {% if not todo.completed and todo.due_date < today %}bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 font-medium{% else %}bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400{% endif %}">
                                 📅 {{ todo.due_date }}
                                 {% if not todo.completed and todo.due_date < today %}
                                     <span class="ml-0.5">⚠️</span>
@@ -139,7 +139,7 @@
                             </span>
                         {% endif %}
                         {# Date de création #}
-                        <span>Créée le {{ todo.created_at[:10] }}</span>
+                        <span class="text-gray-500 dark:text-gray-400">Créée le {{ todo.created_at[:10] }}</span>
                     </div>
                 </div>
 

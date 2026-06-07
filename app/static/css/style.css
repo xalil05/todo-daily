@@ -3,6 +3,18 @@
  * Utilisé en conjonction avec Tailwind CSS v4 (CDN).
  */
 
+/* Transition douce pour le changement de thème */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html *,
+html *::before,
+html *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+              box-shadow 0.2s ease, color 0.2s ease;
+}
+
 /* Animation de fondu pour les échanges htmx */
 #main-content.htmx-swapping {
   opacity: 0;

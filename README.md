@@ -1,4 +1,4 @@
-# 🏢 Project Hub (ex Todo-Daily)
+# Todo-Daily
 
 **Hub central de gestion de projets SaaS et personnels.** Dashboard, planning hebdomadaire, suivi d'historique et objectifs du jour — le tout dans une app FastAPI légère avec htmx.
 
@@ -51,15 +51,25 @@
 
 ## 🛠️ Utilisation
 
+### Installation rapide
+
 ```bash
-# Lancer le serveur
+git clone https://github.com/xalil05/todo-daily.git
+cd todo-daily
+uv sync
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8002
-
-# Rituel de fin de session
-~/.hermes/scripts/end-session <projet> "Ce qu'on a fait" "Objectif de demain"
-
-# Ou depuis l'interface : bouton 🎬 Fin de session sur chaque projet
 ```
+
+Ouvrir http://localhost:8002 → Todos quotidiens
+Ouvrir http://localhost:8002/projects → Hub projets
+
+### Rituel de fin de session
+
+```bash
+~/.hermes/scripts/end-session <projet> "Ce qu'on a fait" "Objectif de demain"
+```
+
+Ou depuis l'interface : bouton 🎬 Fin de session sur chaque projet.
 
 ## 📁 Architecture
 

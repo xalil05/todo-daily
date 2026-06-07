@@ -70,7 +70,7 @@ def get_todo_by_id(db: sqlite3.Connection, todo_id: int) -> Optional[Todo]:
     Returns:
         Le Todo correspondant ou None si l'id n'existe pas
     """
-    row = db.execute("SELECT " + TODOS_COLUMNS + " FROM todos WHERE id = ?", (todo_id,)).fetchone()
+    row = db.execute(f"SELECT {TODOS_COLUMNS} FROM todos WHERE id = ?", (todo_id,)).fetchone()
     if row is None:
         return None
     return Todo.model_validate(dict(row))
@@ -176,7 +176,7 @@ def get_next_due(db: sqlite3.Connection) -> Optional[dict]:
     current_time = now.strftime("%H:%M")
 
     rows = db.execute(
-        "SELECT " + TODOS_COLUMNS + " FROM todos WHERE completed = 0 AND due_date IS NOT NULL ORDER BY due_date ASC, due_time ASC"
+        f"SELECT {TODOS_COLUMNS} FROM todos WHERE completed = 0 AND due_date IS NOT NULL ORDER BY due_date ASC, due_time ASC"
     ).fetchall()
 
     for row in rows:
@@ -201,7 +201,7 @@ def get_next_due(db: sqlite3.Connection) -> Optional[dict]:
 def get_categories(db: sqlite3.Connection) -> list[dict]:
     """Liste toutes les catégories triées par ordre."""
     rows = db.execute(
-        "SELECT " + CATEGORIES_COLUMNS + " FROM categories ORDER BY sort_order ASC, name ASC"
+        f"SELECT {CATEGORIES_COLUMNS} FROM categories ORDER BY sort_order ASC, name ASC"
     ).fetchall()
     return [dict(r) for r in rows]
 
@@ -213,7 +213,7 @@ def create_category(db: sqlite3.Connection, name: str, color: str = "#6366f1") -
         (name.strip(), color),
     )
     db.commit()
-    row = db.execute("SELECT " + CATEGORIES_COLUMNS + " FROM categories WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    row = db.execute(f"SELECT {CATEGORIES_COLUMNS} FROM categories WHERE id = ?", (cursor.lastrowid,)).fetchone()
     return dict(row)
 
 

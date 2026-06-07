@@ -10,13 +10,17 @@ Opérations CRUD sur les tables :
 import sqlite3
 from datetime import date
 
+PROJECTS_COLUMNS = "id, name, slug, short_name, description, category, status, color, icon, sort_order, created_at"
+LOGS_COLUMNS = "id, project_id, entry_type, content, created_at"
+OBJECTIVES_COLUMNS = "id, project_id, objective, completed, for_date, sort_order, created_at"
+
 
 # ─── Projets ────────────────────────────────────────────
 
 def get_all_projects(db: sqlite3.Connection):
     """Retourne tous les projets, triés par sort_order."""
     rows = db.execute(
-        "SELECT * FROM projects ORDER BY sort_order ASC, name ASC"
+        f"SELECT {PROJECTS_COLUMNS} FROM projects ORDER BY sort_order ASC, name ASC"
     ).fetchall()
     return [dict(r) for r in rows]
 
@@ -24,22 +28,22 @@ def get_all_projects(db: sqlite3.Connection):
 def get_projects_by_status(db: sqlite3.Connection, status=None):
     if status:
         rows = db.execute(
-            "SELECT * FROM projects WHERE status = ? ORDER BY sort_order ASC", (status,)
+            f"SELECT {PROJECTS_COLUMNS} FROM projects WHERE status = ? ORDER BY sort_order ASC", (status,)
         ).fetchall()
     else:
         rows = db.execute(
-            "SELECT * FROM projects ORDER BY sort_order ASC"
+            f"SELECT {PROJECTS_COLUMNS} FROM projects ORDER BY sort_order ASC"
         ).fetchall()
     return [dict(r) for r in rows]
 
 
 def get_project_by_slug(db: sqlite3.Connection, slug: str):
-    row = db.execute("SELECT * FROM projects WHERE slug = ?", (slug,)).fetchone()
+    row = db.execute(f"SELECT {PROJECTS_COLUMNS} FROM projects WHERE slug = ?", (slug,)).fetchone()
     return dict(row) if row else None
 
 
 def get_project_by_id(db: sqlite3.Connection, project_id: int):
-    row = db.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+    row = db.execute(f"SELECT {PROJECTS_COLUMNS} FROM projects WHERE id = ?", (project_id,)).fetchone()
     return dict(row) if row else None
 
 
@@ -199,7 +203,7 @@ def seed_projects(db: sqlite3.Connection):
 def get_project_logs(db: sqlite3.Connection, project_id: int, limit: int = 20):
     """Retourne les logs d'un projet, du plus récent au plus ancien."""
     rows = db.execute(
-        "SELECT * FROM project_logs WHERE project_id = ? ORDER BY created_at DESC LIMIT ?",
+        f"SELECT {LOGS_COLUMNS} FROM project_logs WHERE project_id = ? ORDER BY created_at DESC LIMIT ?",
         (project_id, limit),
     ).fetchall()
     return [dict(r) for r in rows]
@@ -220,7 +224,7 @@ def get_today_objectives(db: sqlite3.Connection, project_id: int):
     """Retourne les objectifs du jour pour un projet."""
     today = date.today().isoformat()
     rows = db.execute(
-        """SELECT * FROM project_objectives
+        f"""SELECT {OBJECTIVES_COLUMNS} FROM project_objectives
            WHERE project_id = ? AND (for_date IS NULL OR for_date = ?)
            ORDER BY sort_order ASC""",
         (project_id, today),
@@ -232,7 +236,7 @@ def get_all_today_objectives(db: sqlite3.Connection):
     """Retourne tous les objectifs du jour pour le tableau de bord."""
     today = date.today().isoformat()
     rows = db.execute(
-        """SELECT po.*, p.name, p.slug, p.icon, p.color
+        f"""SELECT po.{OBJECTIVES_COLUMNS}, p.name, p.slug, p.icon, p.color
            FROM project_objectives po
            JOIN projects p ON p.id = po.project_id
            WHERE (po.for_date IS NULL OR po.for_date = ?)
@@ -296,9 +300,9 @@ WEEKLY_PLAN = [
     ("Mardi", "bugcrush", "todo-daily"),
     ("Mercredi", "secureshield", "projecsen"),
     ("Jeudi", "melo-studio", "python-learning"),
-    ("Vendredi", None, None),       # Opérations / bouclage
-    ("Samedi", None, None),         # R&D / libre
-    ("Dimanche", None, None),       # Repos
+    ("Vendredi", "bellissima", "nexus-debug"), # Bouclage fournisseurs + maintenance hub
+    ("Samedi", "prompto", "python-learning"),   # R&D / side projects
+    ("Dimanche", "todo-daily", None),            # Planification semaine + repos
 ]
 
 WEEKDAYS_FR = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]

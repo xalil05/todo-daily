@@ -2,9 +2,11 @@
 
 **Hub central de gestion de projets SaaS et personnels.** Dashboard, planning hebdomadaire, suivi d'historique et objectifs du jour — le tout dans une app FastAPI légère avec htmx.
 
+```text
+10 projets · 4 SaaS · Planning intégré · Historique de sessions · 🐍 Python 15h-17h30
 ```
-10 projets · 4 SaaS · Planning intégré · Historique de sessions
-```
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -38,8 +40,11 @@
 | Mardi | 🐛 **BugCrush** | ✅ Todo Daily |
 | Mercredi | 🛡️ **SecureShield** | 🌍 ProjecSen |
 | Jeudi | 🎨 **Melo Studio** | 🐍 Python Learning |
-| Vendredi | 💼 Opérations / Bouclage | — |
-| Samedi | 🔬 R&D / Architecture | — |
+| Vendredi | 🧺 **BELLISSIMA** (fournisseurs) | 🔍 Nexus-Debug (maintenance) |
+| Samedi | ⚡ **Prompto** (R&D) | 🐍 Python |
+| Dimanche | ✅ **Todo-Daily** (planification) | — |
+
+> 🐍 **Cours Python** : Lundi→Vendredi, 15h00-17h30 (todo automatique)
 
 ## 🏗️ SaaS en construction
 
@@ -62,6 +67,27 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8002
 
 Ouvrir http://localhost:8002 → Todos quotidiens
 Ouvrir http://localhost:8002/projects → Hub projets
+
+### Endpoints principaux
+
+| URL | Description |
+|:---|:---|
+| `/` | Todos du jour |
+| `/projects/` | Dashboard projets |
+| `/projects/weekly` | Planning hebdomadaire |
+| `/projects/{slug}` | Détail d'un projet |
+| `/api/todos/` | API JSON des todos |
+| `/api/projects` | API JSON des projets |
+| `/api/dashboard` | Statistiques |
+| `/api/weekly-plan` | Planning JSON |
+
+### Navigation
+
+- **✅ Todo** → Listes + filtres (all/active/done)
+- **🏢 Projets** → Hub des 10 projets
+- **📅 Semaine** → Planning hebdomadaire
+- **🕒 Timer** → Affiché en haut : prochaine tâche due
+- **🌙 Dark mode** → Bouton en haut à droite
 
 ### Rituel de fin de session
 

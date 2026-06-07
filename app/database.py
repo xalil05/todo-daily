@@ -50,7 +50,7 @@ def init_db():
         try:
             conn.execute("ALTER TABLE todos ADD COLUMN due_time TEXT DEFAULT NULL")
         except Exception:
-            pass  # La colonne existe déjà
+            pass  # La colonne due_time existe déjà — migration déjà appliquée
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS categories (

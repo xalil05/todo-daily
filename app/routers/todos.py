@@ -76,12 +76,12 @@ def add_category(
     """Crée une nouvelle catégorie."""
     name = data.get("name", "").strip()
     if not name:
-        raise HTTPException(status_code=422, detail="Le nom est requis")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Le nom est requis")
     color = data.get("color", "#6366f1")
     try:
         return todo_service.create_category(db, name, color)
     except Exception as e:
-        raise HTTPException(status_code=409, detail=f"Catégorie déjà existante : {e}")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Catégorie déjà existante : {e}")
 
 
 @router.delete("/categories/{category_id}", status_code=204)

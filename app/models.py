@@ -8,6 +8,10 @@ Modèles Pydantic pour la validation des données des tâches.
 
 from pydantic import BaseModel, Field, field_validator
 
+# ─── Constantes ──────────────────────────────────────────
+MAX_TITLE_LENGTH = 200
+MAX_CATEGORY_LENGTH = 50
+
 
 class TodoCreate(BaseModel):
     """
@@ -17,12 +21,12 @@ class TodoCreate(BaseModel):
     title: str = Field(
         ...,
         min_length=1,
-        max_length=200,
+        max_length=MAX_TITLE_LENGTH,
         description="Le texte de la tâche à faire"
     )
     category: str | None = Field(
         default=None,
-        max_length=50,
+        max_length=MAX_CATEGORY_LENGTH,
         description="Catégorie de la tâche"
     )
     due_date: str | None = Field(
@@ -66,7 +70,7 @@ class TodoUpdateTitle(BaseModel):
     title: str = Field(
         ...,
         min_length=1,
-        max_length=200,
+        max_length=MAX_TITLE_LENGTH,
         description="Le nouveau titre de la tâche"
     )
 
@@ -106,5 +110,5 @@ class Category(BaseModel):
 
 class CategoryCreate(BaseModel):
     """Schéma pour créer une catégorie."""
-    name: str = Field(..., min_length=1, max_length=50)
+    name: str = Field(..., min_length=1, max_length=MAX_CATEGORY_LENGTH)
     color: str = Field(default="#6366f1", pattern=r"^#[0-9a-fA-F]{6}$")

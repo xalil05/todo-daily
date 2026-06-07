@@ -10,6 +10,10 @@ from typing import Optional
 
 from app.models import Todo, TodoCreate, TodoUpdate
 
+# Colonnes explicites pour éviter les SELECT *
+TODOS_COLUMNS = "id, title, category, due_date, due_time, priority, completed, created_at"
+CATEGORIES_COLUMNS = "id, name, color, sort_order"
+
 
 def create_todo(db: sqlite3.Connection, data: TodoCreate) -> Todo:
     """
@@ -23,7 +27,7 @@ def create_todo(db: sqlite3.Connection, data: TodoCreate) -> Todo:
 
     # On récupère la ligne fraîchement insérée grâce à l'id auto-généré
     new_id = cursor.lastrowid
-    row = db.execute("SELECT * FROM todos WHERE id = ?", (new_id,)).fetchone()
+    row = db.execute(f"SELECT {TODOS_COLUMNS} FROM todos WHERE id = ?", (new_id,)).fetchone()
     return Todo.model_validate(dict(row))
 
 
@@ -47,7 +51,7 @@ def get_todos(
         conditions.append("category = ?")
         params = params + (filter_category,)
 
-    query = "SELECT * FROM todos"
+    query = "SELECT " + TODOS_COLUMNS + " FROM todos"
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
     query += " ORDER BY created_at DESC"
@@ -66,7 +70,7 @@ def get_todo_by_id(db: sqlite3.Connection, todo_id: int) -> Optional[Todo]:
     Returns:
         Le Todo correspondant ou None si l'id n'existe pas
     """
-    row = db.execute("SELECT * FROM todos WHERE id = ?", (todo_id,)).fetchone()
+    row = db.execute("SELECT " + TODOS_COLUMNS + " FROM todos WHERE id = ?", (todo_id,)).fetchone()
     if row is None:
         return None
     return Todo.model_validate(dict(row))
@@ -166,7 +170,7 @@ def count_todos(db: sqlite3.Connection) -> dict[str, int]:
 def get_categories(db: sqlite3.Connection) -> list[dict]:
     """Liste toutes les catégories triées par ordre."""
     rows = db.execute(
-        "SELECT * FROM categories ORDER BY sort_order ASC, name ASC"
+        "SELECT " + CATEGORIES_COLUMNS + " FROM categories ORDER BY sort_order ASC, name ASC"
     ).fetchall()
     return [dict(r) for r in rows]
 
@@ -178,7 +182,7 @@ def create_category(db: sqlite3.Connection, name: str, color: str = "#6366f1") -
         (name.strip(), color),
     )
     db.commit()
-    row = db.execute("SELECT * FROM categories WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    row = db.execute("SELECT " + CATEGORIES_COLUMNS + " FROM categories WHERE id = ?", (cursor.lastrowid,)).fetchone()
     return dict(row)
 
 

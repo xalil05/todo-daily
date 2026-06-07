@@ -76,7 +76,14 @@
             <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 📜 Historique
             </h2>
-            <span class="text-xs text-gray-400 dark:text-gray-500">{{ logs|length }} entrées</span>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-400 dark:text-gray-500">{{ logs|length }} entrées</span>
+                <button id="end-session-btn"
+                        class="rounded-lg bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
+                        onclick="document.getElementById('end-session-modal').classList.remove('hidden')">
+                    🎬 Fin de session
+                </button>
+            </div>
         </div>
 
         {# Nouveau log #}
@@ -110,3 +117,46 @@
 
 </div>
 {% endblock %}
+
+{# ─── Modal Fin de session ───────────────────── #}
+<div id="end-session-modal"
+     class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm"
+     onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="mx-4 w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-5 shadow-xl"
+         onclick="event.stopPropagation()">
+        <h2 class="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100">🎬 Fin de session — {{ project.short_name or project.name }}</h2>
+
+        <form hx-post="/api/projects/{{ project.id }}/end-session"
+              hx-target="#log-list"
+              hx-swap="innerHTML"
+              hx-on::after-request="document.getElementById('end-session-modal').classList.add('hidden')">
+
+            <div class="space-y-3">
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Ce qu'on a fait</label>
+                    <textarea name="content" required rows="3"
+                              placeholder="Ex: Reponse Domotiq envoyee, relance Diotali programmee..."
+                              class="w-full rounded-lg border border-gray-200 dark:border-gray-600/60 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:bg-gray-700/60"></textarea>
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Objectif de demain (optionnel)</label>
+                    <input type="text" name="next_objective"
+                           placeholder="Ex: Suivre les reponses fournisseurs"
+                           class="w-full rounded-lg border border-gray-200 dark:border-gray-600/60 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:bg-gray-700/60">
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-end gap-2">
+                <button type="button"
+                        onclick="document.getElementById('end-session-modal').classList.add('hidden')"
+                        class="rounded-lg px-3 py-2 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 active:bg-indigo-800 transition-colors">
+                    ✅ Terminer la session
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

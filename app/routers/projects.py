@@ -229,6 +229,42 @@ def api_dashboard(
     return project_service.get_dashboard_stats(db)
 
 
+@router.post("/api/projects/{project_id}/end-session")
+def api_end_session(
+    project_id: int,
+    request: Request,
+    content: str = Form(...),
+    next_objective: str = Form(""),
+    db: Connection = Depends(get_db),
+):
+    """End-of-session : ajoute un log + optionnellement un objectif pour demain."""
+    project = project_service.get_project_by_id(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Projet introuvable")
+
+    # Ajouter le log
+    project_service.add_project_log(db, project_id, content, "session")
+
+    # Ajouter l'objectif pour demain si fourni
+    if next_objective.strip():
+        from datetime import date, timedelta
+        tomorrow = (date.today() + timedelta(days=1)).isoformat()
+        project_service.add_objective(db, project_id, next_objective.strip(), tomorrow)
+
+    # Retourner le partial des logs mis à jour
+    return HTMLResponse(
+        request.app.state.templates.TemplateResponse(
+            request,
+            "projects/_log_list.html",
+            {
+                "request": request,
+                "logs": project_service.get_project_logs(db, project_id),
+                "project": project,
+            },
+        ).body
+    )
+
+
 @router.get("/api/weekly-plan")
 def api_weekly_plan(
     db: Connection = Depends(get_db),

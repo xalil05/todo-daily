@@ -19,7 +19,7 @@ from fastapi.responses import HTMLResponse
 from sqlite3 import Connection
 
 from app.database import get_db
-from app.models import Todo, TodoCreate, TodoUpdate
+from app.models import Todo, TodoCreate, TodoUpdate, TodoUpdateTitle
 from app.services import todo_service
 from app.routers.pages import _render_todo_partial
 
@@ -27,6 +27,42 @@ router = APIRouter(
     prefix="/api/todos",
     tags=["todos"],
 )
+
+
+@router.get("/{todo_id}/edit")
+def edit_todo_form(
+    todo_id: int,
+    request: Request,
+    db: Connection = Depends(get_db),
+):
+    """
+    Renvoie un formulaire HTML inline pour éditer le titre d'une tâche.
+    Utilisé par htmx (double-click sur le titre).
+    """
+    todo = todo_service.get_todo_by_id(db, todo_id)
+    if todo is None:
+        raise HTTPException(status_code=404, detail="Tâche introuvable")
+
+    return HTMLResponse(f"""
+    <form class="inline-flex items-center gap-1">
+        <input type="text" id="edit-title-{todo.id}" name="title" value="{todo.title}"
+               maxlength="200" required
+               class="w-full rounded border border-indigo-400 px-2 py-1 text-sm"
+               autofocus
+               onfocus="this.select()"
+               hx-put="/api/todos/{todo.id}/title"
+               hx-target="#main-content"
+               hx-trigger="keydown[key=='Enter'], blur"
+               hx-vals='js:{{"title": document.getElementById("edit-title-{todo.id}").value}}'>
+        <button type="button"
+                class="rounded bg-indigo-600 px-2 py-1 text-xs text-white hover:bg-indigo-700"
+                hx-put="/api/todos/{todo.id}/title"
+                hx-target="#main-content"
+                hx-vals='js:{{"title": document.getElementById("edit-title-{todo.id}").value}}'>
+            OK
+        </button>
+    </form>
+    """)
 
 
 @router.post("/", response_model=Todo, status_code=status.HTTP_201_CREATED)
@@ -102,6 +138,32 @@ def update_todo_completed(
         )
 
     # Si htmx : renvoyer le partial HTML au lieu du JSON
+    if request.headers.get("HX-Request") == "true":
+        return HTMLResponse(
+            _render_todo_partial(request, "all", db).body
+        )
+
+    return updated
+
+
+@router.put("/{todo_id}/title", response_model=Todo)
+def update_todo_title(
+    todo_id: int,
+    data: TodoUpdateTitle,
+    request: Request,
+    db: Connection = Depends(get_db),
+):
+    """
+    Modifie le titre d'une tâche.
+    Si la requête vient de htmx, renvoie le partial HTML.
+    """
+    updated = todo_service.update_todo_title(db, todo_id, data.title)
+    if updated is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Aucune tâche trouvée avec l'id {todo_id}",
+        )
+
     if request.headers.get("HX-Request") == "true":
         return HTMLResponse(
             _render_todo_partial(request, "all", db).body

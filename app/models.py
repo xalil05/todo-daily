@@ -45,6 +45,19 @@ class TodoUpdate(BaseModel):
     )
 
 
+class TodoUpdateTitle(BaseModel):
+    """
+    Schéma utilisé pour modifier le titre d'une tâche.
+    Seul le champ 'title' est modifiable.
+    """
+    title: str = Field(
+        ...,
+        min_length=1,
+        max_length=200,
+        description="Le nouveau titre de la tâche"
+    )
+
+
 class Todo(BaseModel):
     """
     Représentation complète d'une tâche, telle qu'elle est renvoyée par l'API.

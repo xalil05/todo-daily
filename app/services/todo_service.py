@@ -126,6 +126,32 @@ def delete_todo(db: sqlite3.Connection, todo_id: int) -> bool:
     return cursor.rowcount > 0
 
 
+def update_todo_title(
+    db: sqlite3.Connection, todo_id: int, new_title: str
+) -> Optional[Todo]:
+    """
+    Modifie le titre d'une tâche.
+
+    Args:
+        db: Connexion SQLite active
+        todo_id: Identifiant de la tâche à modifier
+        new_title: Nouveau titre
+
+    Returns:
+        Le Todo mis à jour, ou None si l'id n'existe pas
+    """
+    existing = get_todo_by_id(db, todo_id)
+    if existing is None:
+        return None
+
+    db.execute(
+        "UPDATE todos SET title = ? WHERE id = ?",
+        (new_title.strip(), todo_id),
+    )
+    db.commit()
+    return get_todo_by_id(db, todo_id)
+
+
 def count_todos(db: sqlite3.Connection) -> dict[str, int]:
     """
     Retourne le nombre total de tâches, le nombre de tâches actives et terminées.
